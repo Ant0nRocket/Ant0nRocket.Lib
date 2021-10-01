@@ -5,6 +5,7 @@ using Ant0nRocket.Lib.Std20.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Ant0nRocket.Lib.Std20.DependencyInjection
@@ -37,12 +38,6 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
         {
             var type = typeof(T);
 
-            var transientAttribute = GetAttribute<TransientAttribute>(type);
-            if (transientAttribute != default)
-            { 
-                return Activator.CreateInstance<T>();
-            }
-
             if (singletones.ContainsKey(type))
             {
                 return (T)singletones[type];
@@ -56,14 +51,22 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
         private static T CreateAndRegisterInstance<T>()
         {
             var type = typeof(T);
-            singletones.Add(type, default); // it doesn't exists, we checked on prev step
 
+            var transientAttribute = GetAttribute<TransientAttribute>(type);
+            if (transientAttribute != default)
+            {
+                // if transient - no singlotone!!!
+                return CreateInstance<T>();
+            }
+
+            singletones.Add(type, default); // it doesn't exists, we checked on prev step
             var (canBeDeserialized, serializer, fullPath) = GetSerializerAndFilePath(type);
             if (canBeDeserialized)
             {
                 try
                 {
                     var (_, result) = serializer.ReadFromFileAndDeserialize<T>(fullPath);
+                    CallInitializerMethodIfRequired(result);
                     singletones[type] = result;
                 }
                 catch (Exception e)
@@ -71,14 +74,37 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
                     logger.LogException(e, $"Can't deserialize type '{type}'");
                 }
             }
-
-            if (singletones[type] == default)
+            else
             {
                 logger.LogTrace($"Deserialization is not about type '{type}'. New instance created");
-                singletones[type] = Activator.CreateInstance<T>();
+                singletones[type] = CreateInstance<T>();
             }
 
             return (T)singletones[type];
+        }
+
+        private static T CreateInstance<T>()
+        {
+            var instance = Activator.CreateInstance<T>();
+            CallInitializerMethodIfRequired(instance);
+            return instance;
+        }
+
+        private static void CallInitializerMethodIfRequired<T>(T instance)
+        {
+            var type = typeof(T);
+            var initializerMethodAtribute = GetAttribute<InitializerMethodAttribute>(type);
+            // if nothing to dial with - return
+            if (initializerMethodAtribute == default || initializerMethodAtribute.InitializerMethodName == default) return;
+
+            var methods = type.GetMethods();
+            if (!methods.Any(m => m.Name == initializerMethodAtribute.InitializerMethodName))
+            {
+                logger.LogWarning($"Type {type} has {nameof(InitializerMethodAttribute)} but proper method not found in instance");
+                return;
+            }
+
+            methods.First(m => m.Name == initializerMethodAtribute.InitializerMethodName).Invoke(instance, null);
         }
 
         private static (bool Status, ISerializer Serializer, string FilePath) GetSerializerAndFilePath(Type type)

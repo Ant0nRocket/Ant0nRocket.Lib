@@ -18,7 +18,6 @@ namespace Ant0nRocket.Lib.Std20.Logging
             if (logStream == default || fileName != currentFileName) 
             {
                 logStream?.Close();
-                logStreamWriter?.Close();
                 currentFileName = fileName;
                 logStream = new FileStream(currentFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                 logStreamWriter = new StreamWriter(logStream, Encoding.UTF8) { AutoFlush = true };

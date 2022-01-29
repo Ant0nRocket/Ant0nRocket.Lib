@@ -20,7 +20,6 @@ namespace Ant0nRocket.Lib.Std20.Cryptography
 
         public static string CalculateHash(string value, string salt = default, HashAlgorithmType hashType = HashAlgorithmType.SHA512)
         {
-            salt = salt ?? new string('t', 42);
             var bytes = Encoding.UTF8.GetBytes(value + salt);
             var result = CalculateHash(bytes, hashType);
             return Convert.ToBase64String(result);

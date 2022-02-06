@@ -31,18 +31,22 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
 
         public SerializerType SerializerType { get; set; } = SerializerType.Json;
 
+        public bool BackupOldData { get; set; } = false;
 
-        public SaveAttribute(string fileName, SerializerType serializerType = SerializerType.Json)
+
+        public SaveAttribute(string fileName, SerializerType serializerType = SerializerType.Json, bool backupOldData = false)
         {
             FileName = fileName;
             SerializerType = serializerType;
+            BackupOldData = backupOldData;
         }
 
-        public SaveAttribute(string directoryName, string fileName, SerializerType serializerType = SerializerType.Json)
+        public SaveAttribute(string directoryName, string fileName, SerializerType serializerType = SerializerType.Json, bool backupOldData = false)
         {
             DirectoryName = directoryName;
             FileName = fileName;
             SerializerType = serializerType;
+            BackupOldData = backupOldData;
         }
     }
 }

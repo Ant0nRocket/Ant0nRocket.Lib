@@ -111,6 +111,13 @@ namespace Ant0nRocket.Lib.Std20.IO
             return targetDirectory;
         }
 
+
+        public static string GetAppDataPathFor(string fileName, AppDataFolder folder = AppDataFolder.UserLocalAppData, string subDirectory = default, bool autoCreateDirectory = true)
+        {
+            var appDataPath = GetAppDataPath(folder, subDirectory, autoCreateDirectory);
+            return Path.Combine(appDataPath, fileName);
+        }
+
         /// <summary>
         /// Required in Tests who can't provide Assembly.GetEntryAssembly().<br />
         /// Call it in test init like: FileSystemUtils.SetEntryAssembly(Assembly.GetCallingAssembly())

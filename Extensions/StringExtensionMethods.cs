@@ -6,7 +6,7 @@
         {
             if (value.Length <= charsCount)
                 return value;
-            return value.Substring(0, charsCount - 1);
+            return value.Substring(0, charsCount);
         }
 
         public static string Right(this string value, int charsCount)

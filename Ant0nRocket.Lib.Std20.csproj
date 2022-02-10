@@ -5,12 +5,26 @@
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	<LangVersion>9.0</LangVersion>
 	<UserSecretsId>02f2c00e-01fc-4fb6-8cd7-d5578f171bd4</UserSecretsId>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Description>Helpfull code: dependency injection, hasing, file-system utils, etc.</Description>
+	<PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<AssemblyVersion>1.0.1</AssemblyVersion>
+	<FileVersion>1.0.1</FileVersion>
+	<Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

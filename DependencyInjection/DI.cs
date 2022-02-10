@@ -12,9 +12,6 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
 {
     /// <summary>
     /// Simple class for Dependency injection.<br />
-    /// Only allows to register singletones.<br />
-    /// If you need transients - don't fuck around, create one right inside required place.<br />
-    /// Or you can always use something more difficult (Ninject, Microsoft.Extensions.DependencyInjection, etc.)
     /// </summary>
     public static class DI
     {
@@ -44,6 +41,7 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
             }
             else
             {
+                // classes with TransientAttribute goes here
                 return CreateAndRegisterInstance<T>();
             }
         }

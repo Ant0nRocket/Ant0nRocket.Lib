@@ -2,7 +2,7 @@
 
 namespace Ant0nRocket.Lib.Std20.Extensions
 {
-    public static class DateTimeExtensionMethods
+    public static class DateTimeExtension
     {
         /// <summary>
         /// 20.01.2021 12:45:00 -> 20.01.2021 23:59:59.999

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
-    public class T001_Cryptography
+    public class Cryptography
     {
         [Test]
         public void T001_Hasher_CalculateHash_SHA512()

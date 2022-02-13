@@ -20,5 +20,17 @@ namespace Ant0nRocket.Lib.Std20.Tests
             arrayB[0] = 2;
             Assert.IsFalse(arrayA.StrictlyEquals(arrayB));
         }
+
+        [Test]
+        public void String_Left_And_Right()
+        {
+            var str = "Hello! My name is Anton!";
+            Assert.AreEqual("Hello", str.Left(5));
+            Assert.AreEqual("Anton!", str.Right(6));
+
+            str = "ooops";
+            Assert.AreEqual(str, str.Left(30));
+            Assert.AreEqual(str, str.Right(30));
+        }
     }
 }

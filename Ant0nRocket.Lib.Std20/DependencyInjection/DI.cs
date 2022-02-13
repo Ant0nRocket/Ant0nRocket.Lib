@@ -1,6 +1,5 @@
 ﻿using Ant0nRocket.Lib.Std20.DependencyInjection.Attributes;
 using Ant0nRocket.Lib.Std20.IO;
-using Ant0nRocket.Lib.Std20.IO.Serialization;
 using Ant0nRocket.Lib.Std20.Logging;
 
 using System;
@@ -21,9 +20,6 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
         private static readonly Dictionary<Type, object> singletones = new();
 
         private static readonly Dictionary<Type, byte[]> pushedSingltones = new();
-
-        public static ISerializer BinarySerializer { get; private set; } = new BinarySerializer();
-        public static ISerializer JsonSerializer { get; private set; } = new JsonSerializer();
 
         static DI()
         {
@@ -58,7 +54,9 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
                 return CreateInstance<T>();
             }
 
-            singletones.Add(type, default); // it doesn't exists, we checked on prev step
+            singletones.Add(type, default); // something will be there, new instance or deserialized
+
+
             var (canBeDeserialized, serializer, fullPath) = GetSerializerAndFilePath(type);
             if (canBeDeserialized)
             {

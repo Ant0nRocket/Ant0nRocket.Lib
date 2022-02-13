@@ -1,4 +1,5 @@
-﻿using Ant0nRocket.Lib.Std20.IO;
+﻿using Ant0nRocket.Lib.Std20.DependencyInjection.Attributes;
+using Ant0nRocket.Lib.Std20.IO;
 using Ant0nRocket.Lib.Std20.IO.Serialization;
 using Ant0nRocket.Lib.Std20.Logging;
 

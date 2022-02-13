@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace Ant0nRocket.Lib.Std20.DependencyInjection
+namespace Ant0nRocket.Lib.Std20.DependencyInjection.Attributes
 {
     public class SaveAttribute : Attribute
     {

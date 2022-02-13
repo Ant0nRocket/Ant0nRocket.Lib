@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ant0nRocket.Lib.Std20.DependencyInjection
+namespace Ant0nRocket.Lib.Std20.DependencyInjection.Attributes
 {
     /// <summary>
     /// Attribute class for <see cref="DI"/>.<br />

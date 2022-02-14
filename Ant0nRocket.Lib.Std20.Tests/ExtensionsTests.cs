@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
-    public class Extensions
+    public class ExtensionsTests
     {
         [Test]
         public void ByteArray_StrictlyEquals()

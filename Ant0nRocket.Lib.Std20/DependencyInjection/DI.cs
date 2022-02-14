@@ -21,6 +21,10 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
 
         private static readonly Dictionary<Type, byte[]> pushedSingltones = new();
 
+        private static Func<string, object> deserializeFunction = default;
+
+        private static Func<object, string, bool> serializeFunction = default;
+
         static DI()
         {
             logger = Logger.Create(nameof(DI));
@@ -31,53 +35,60 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
         public static T Get<T>()
         {
             var type = typeof(T);
+            var transientAttribute = GetAttribute<TransientAttribute>(type);
 
-            if (singletones.ContainsKey(type))
+            // Transient means that every Get() call should return new instance.
+            // Nothing to store in singletones here.
+            if (transientAttribute != null) return CreateInstance<T>();
+
+            if (singletones.ContainsKey(type)) // if somewhere in the past we already create it...
             {
-                return (T)singletones[type];
+                return (T)singletones[type]; // then just return it.
             }
-            else
+            else // type requested for the first time
             {
-                // classes with TransientAttribute goes here
-                return CreateAndRegisterInstance<T>();
+                return CreateAndRememberInstance<T>();
             }
         }
 
-        private static T CreateAndRegisterInstance<T>()
+        private static T CreateAndRememberInstance<T>()
         {
             var type = typeof(T);
 
-            var transientAttribute = GetAttribute<TransientAttribute>(type);
-            if (transientAttribute != default)
-            {
-                // if transient - no singlotone!!!
-                return CreateInstance<T>();
-            }
-
             singletones.Add(type, default); // something will be there, new instance or deserialized
-
-
-            var (canBeDeserialized, serializer, fullPath) = GetSerializerAndFilePath(type);
-            if (canBeDeserialized)
+            var saveAttribute = GetAttribute<SaveAttribute>(type);
+            if (saveAttribute == default)
             {
-                try
-                {
-                    var (_, result) = serializer.ReadFromFileAndDeserialize<T>(fullPath);
-                    CallInitializerMethodIfRequired(result);
-                    singletones[type] = result;
-                }
-                catch (Exception e)
-                {
-                    logger.LogException(e, $"Can't deserialize type '{type}'");
-                }
-            }
-            else
-            {
-                logger.LogTrace($"Deserialization is not about type '{type}'. New instance created");
                 singletones[type] = CreateInstance<T>();
+                return (T)singletones[type];
             }
 
-            return (T)singletones[type];
+            return CreateInstance<T>();
+
+            // saveAttribute has a value here
+
+
+            //var (canBeDeserialized, serializer, fullPath) = GetSerializerAndFilePath(type);
+            //if (canBeDeserialized)
+            //{
+            //    try
+            //    {
+            //        var (_, result) = serializer.ReadFromFileAndDeserialize<T>(fullPath);
+            //        CallInitializerMethodIfRequired(result);
+            //        singletones[type] = result;
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        logger.LogException(e, $"Can't deserialize type '{type}'");
+            //    }
+            //}
+            //else
+            //{
+            //    logger.LogTrace($"Deserialization is not about type '{type}'. New instance created");
+            //    singletones[type] = CreateInstance<T>();
+            //}
+
+            //return (T)singletones[type];
         }
 
         private static T CreateInstance<T>()
@@ -104,24 +115,24 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
             methods.First(m => m.Name == initializerMethodAtribute.InitializerMethodName).Invoke(instance, null);
         }
 
-        private static (bool Status, ISerializer Serializer, string FilePath) GetSerializerAndFilePath(Type type)
-        {
-            var saveAttribute = GetAttribute<SaveAttribute>(type);
-            if (saveAttribute != default)
-            {
-                var serializer = saveAttribute.SerializerType == SerializerType.Json ?
-                    JsonSerializer : BinarySerializer;
+        //private static (bool Status, ISerializer Serializer, string FilePath) GetSerializerAndFilePath(Type type)
+        //{
+        //    var saveAttribute = GetAttribute<SaveAttribute>(type);
+        //    if (saveAttribute != default)
+        //    {
+        //        var serializer = saveAttribute.SerializerType == SerializerType.Json ?
+        //            JsonSerializer : BinarySerializer;
 
-                var fileExtension = serializer.GetFileExtension();
-                var fileName = Path.GetFileNameWithoutExtension(saveAttribute.FileName) + fileExtension;
-                var fullPath = Path.Combine(
-                    FileSystemUtils.GetAppDataPath(),
-                    saveAttribute.DirectoryName,
-                    fileName);
-                return (true, serializer, fullPath);
-            }
-            return (false, default, default);
-        }
+        //        var fileExtension = serializer.GetFileExtension();
+        //        var fileName = Path.GetFileNameWithoutExtension(saveAttribute.FileName) + fileExtension;
+        //        var fullPath = Path.Combine(
+        //            FileSystemUtils.GetAppDataPath(),
+        //            saveAttribute.DirectoryName,
+        //            fileName);
+        //        return (true, serializer, fullPath);
+        //    }
+        //    return (false, default, default);
+        //}
 
         public static U GetAttribute<U>(Type type) where U : Attribute
         {
@@ -141,23 +152,23 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
                 return;
             }
 
-            var (canBeSaved, serializer, filePath) = GetSerializerAndFilePath(type);
-            if (!canBeSaved)
-            {
-                logger.LogTrace($"Instance of type '{type}' can't be saved");
-                return;
-            }
+            //var (canBeSaved, serializer, filePath) = GetSerializerAndFilePath(type);
+            //if (!canBeSaved)
+            //{
+            //    logger.LogTrace($"Instance of type '{type}' can't be saved");
+            //    return;
+            //}
 
-            if (string.IsNullOrWhiteSpace(filePath))
-            {
-                logger.LogWarning($"No path is set for '{type}' to save it");
-                return;
-            }
+            //if (string.IsNullOrWhiteSpace(filePath))
+            //{
+            //    logger.LogWarning($"No path is set for '{type}' to save it");
+            //    return;
+            //}
 
-            if (!serializer.SerializeAndSaveToFile(singletones[type], filePath))
-            {
-                logger.LogError($"Unable to save 'type'");
-            }
+            //if (!serializer.SerializeAndSaveToFile(singletones[type], filePath))
+            //{
+            //    logger.LogError($"Unable to save 'type'");
+            //}
         }
 
         public static void SaveAll()

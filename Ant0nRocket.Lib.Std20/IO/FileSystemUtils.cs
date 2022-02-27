@@ -82,9 +82,9 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// Creates a directory <paramref name="path"/> if it doesn't exists.<br />
         /// Make sure you didn't provide a full file path here :)
         /// </summary>
-        public static void TouchDirectory(string path, bool endsWithFilename = false)
+        public static bool TouchDirectory(string path, bool endsWithFilename = false)
         {            
-            if (string.IsNullOrWhiteSpace(path)) return;
+            if (string.IsNullOrWhiteSpace(path)) return false;
 
             if (endsWithFilename)
                 path = Path.GetDirectoryName(path);
@@ -99,8 +99,11 @@ namespace Ant0nRocket.Lib.Std20.IO
                 catch (Exception ex)
                 {
                     logger.LogException(ex, $"Unable to create directory '{path}': {ex.Message} ({ex.InnerException?.Message})");
+                    return false;
                 }
             }
+
+            return true;
         }
 
         /// <summary>

@@ -43,7 +43,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
         /// leads to <i>%APPDATA%/Local</i>.
         /// </summary>
-        public static Environment.SpecialFolder DefaultAppDataFolder { get; set; } = 
+        public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } = 
             Environment.SpecialFolder.LocalApplicationData;
 
         /// <summary>
@@ -65,15 +65,14 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// </summary>
         private static void AutoSetPortableState()
         {
-            var dsc = System.IO.Path.DirectorySeparatorChar; // "/" or "\"
+            var dsc = Path.DirectorySeparatorChar; // "/" or "\"
             
             var appBaseDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
-            var portableFlagFilePath = Path.Combine(appBaseDirectoryPath, ".portable");
+            var portableFilePath = Path.Combine(appBaseDirectoryPath, ".portable");
             
-            var specialFilePortableFlag = File.Exists(portableFlagFilePath);
+            var specialFilePortableFlag = File.Exists(portableFilePath);
             var commandLinePortableFlag = Environment.GetCommandLineArgs().Contains("--portable");
-            var appBaseDirectoryNamePortableFlag = 
-                appBaseDirectoryPath.Contains($"{dsc}Debug{dsc}") || appBaseDirectoryPath.Contains($".Tests{dsc}");
+            var appBaseDirectoryNamePortableFlag = appBaseDirectoryPath.Contains($"{dsc}Debug{dsc}");
 
             IsPortableMode = specialFilePortableFlag || commandLinePortableFlag || appBaseDirectoryNamePortableFlag;
         }
@@ -132,22 +131,37 @@ namespace Ant0nRocket.Lib.Std20.IO
 
         /// <summary>
         /// Default app data folder path.<br />
-        /// You could change it by setting a new value to <see cref="DefaultAppDataFolder"/>.
+        /// You could change it by setting a new value to <see cref="DefaultSpecialFolder"/>.
         /// </summary>
         /// <returns></returns>
         public static string GetDefaultAppDataFolderPath() => 
-            GetAppNameDependentSpecialFolderPath(DefaultAppDataFolder);
+            GetAppNameDependentSpecialFolderPath(DefaultSpecialFolder);
 
         /// <summary>
-        /// If not <see cref="IsPortableMode>"/><br /><i>%APPDATA%/<see cref="DefaultAppDataFolder"/>/<see cref="AppName"/>/<paramref name="subDirectory"/>/<paramref name="fileName"/></i><br />othervise<br />
-        /// <i><see cref="AppDomain.CurrentDomain.BaseDirectory"/>/<see cref="AppName"/></i> if <see cref="IsPortableMode"/>.
+        /// Will return valid data path for specified <paramref name="fileName"/>.<br />
+        /// If <paramref name="subDirectory"/> specified - it will be added to data path.<br />
+        /// If <paramref name="specialFolder"/> is default (<see cref="Environment.SpecialFolder.Fonts"/>) then
+        /// <see cref="DefaultSpecialFolder"/> will be used.<br />
+        /// If <paramref name="autoTouchDirectory"/> is true - data directory will be auto-created (if not exists).<br />
+        /// <b>N.B.! If <see cref="IsPortableMode"/> then base app directory will be used. Don't forget to set <paramref name="subDirectory"/> in this case.</b>
         /// </summary>
-        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default) 
+        /// <returns></returns>
+        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default, Environment.SpecialFolder specialFolder = Environment.SpecialFolder.Fonts, bool autoTouchDirectory = false) 
         {
-            var rootPath = IsPortableMode ? AppDomain.CurrentDomain.BaseDirectory : GetDefaultAppDataFolderPath();
+            specialFolder = specialFolder == Environment.SpecialFolder.Fonts ?
+                specialFolder = DefaultSpecialFolder : specialFolder;
+
+            var rootPath = IsPortableMode ? 
+                AppDomain.CurrentDomain.BaseDirectory : GetAppNameDependentSpecialFolderPath(specialFolder);
+
             subDirectory ??= string.Empty;
 
-            return Path.Combine(rootPath, subDirectory, fileName);
+            var targetDirectory = Path.Combine(rootPath, subDirectory);
+
+            if (autoTouchDirectory)
+                TouchDirectory(targetDirectory);
+
+            return Path.Combine(targetDirectory, fileName);
         }
     }
 }

@@ -28,6 +28,15 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
 
         #region Basic functionality
 
+        public static void Register<T, U>() where U : class
+        {
+            var actualinterfaceType = typeof(T);
+            if (!actualinterfaceType.IsInterface)
+                throw new ArgumentException($"There should be an interface");
+
+            CreateAndRememberInstance<U>(actualinterfaceType);
+        }
+
         public static T Get<T>()
         {
             var type = typeof(T);
@@ -49,9 +58,9 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
             }
         }
 
-        private static T CreateAndRememberInstance<T>()
+        private static T CreateAndRememberInstance<T>(Type type = default)
         {
-            var type = typeof(T);
+            type ??= typeof(T);
 
             singletones.Add(type, CreateInstance<T>()); // something will be there, new instance or deserialized
 

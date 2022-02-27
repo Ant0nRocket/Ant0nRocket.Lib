@@ -1,6 +1,7 @@
 ﻿using Ant0nRocket.Lib.Std20.DependencyInjection;
 using Ant0nRocket.Lib.Std20.IO;
 using Ant0nRocket.Lib.Std20.Tests.MockClasses;
+using Ant0nRocket.Lib.Std20.Tests.MockInterfaces;
 
 using NUnit.Framework;
 
@@ -53,6 +54,14 @@ namespace Ant0nRocket.Lib.Std20.Tests
             var instB = DI.Get<SaveableClass>();
             Assert.AreNotSame(instB, instA);
             Assert.AreEqual(instA.Name, instB.Name);
+        }
+
+        [Test]
+        public void T005_Interfaces()
+        {
+            DI.Register<IMockInterface, MockInterfacedClass>();
+            var inst = DI.Get<IMockInterface>();
+            Assert.IsNotNull(inst);
         }
     }
 }

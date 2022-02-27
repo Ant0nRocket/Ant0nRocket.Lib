@@ -142,8 +142,12 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// If not <see cref="IsPortableMode>"/><br /><i>%APPDATA%/<see cref="DefaultAppDataFolder"/>/<see cref="AppName"/>/<paramref name="subDirectory"/>/<paramref name="fileName"/></i><br />othervise<br />
         /// <i><see cref="AppDomain.CurrentDomain.BaseDirectory"/>/<see cref="AppName"/></i> if <see cref="IsPortableMode"/>.
         /// </summary>
-        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default) => IsPortableMode ?
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, subDirectory, fileName) :
-            Path.Combine(GetDefaultAppDataFolderPath(), subDirectory, fileName);
+        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default) 
+        {
+            var rootPath = IsPortableMode ? AppDomain.CurrentDomain.BaseDirectory : GetDefaultAppDataFolderPath();
+            subDirectory ??= string.Empty;
+
+            return Path.Combine(rootPath, subDirectory, fileName);
+        }
     }
 }

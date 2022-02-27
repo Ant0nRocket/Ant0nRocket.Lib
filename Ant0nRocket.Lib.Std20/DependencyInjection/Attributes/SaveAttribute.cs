@@ -17,7 +17,7 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection.Attributes
             set => fileName = Regex.Replace(value, @"[^\w\.]", string.Empty);
         }
 
-        private string directoryName = default;
+        private string directoryName = string.Empty;
 
         /// <summary>
         /// When set this value all special chars (like "!", "@", "&", etc.)
@@ -26,7 +26,7 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection.Attributes
         public string DirectoryName
         {
             get => directoryName;
-            set => directoryName = Regex.Replace(value, @"[^\w\.]", string.Empty);
+            set => directoryName = Regex.Replace(value ?? string.Empty, @"[^\w\.]", string.Empty);
         }
 
         /// <summary>

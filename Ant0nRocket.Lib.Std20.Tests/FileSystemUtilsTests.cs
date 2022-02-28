@@ -1,4 +1,8 @@
-﻿using Ant0nRocket.Lib.Std20.IO;
+﻿using Ant0nRocket.Lib.Std20.Attributes;
+using Ant0nRocket.Lib.Std20.Extensions;
+using Ant0nRocket.Lib.Std20.IO;
+using Ant0nRocket.Lib.Std20.Reflection;
+using Ant0nRocket.Lib.Std20.Tests.MockClasses;
 
 using NUnit.Framework;
 
@@ -84,6 +88,35 @@ namespace Ant0nRocket.Lib.Std20.Tests
             var libResult = FileSystemUtils.GetDefaultAppDataFolderPathFor(fileName: FILENAME);
 
             Assert.AreEqual(rootPath, libResult);
+        }
+
+        [Test]
+        public void T008_ReadingClassFromFile()
+        {
+            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
+            var filePath = storeAttr.GetDefaultAppDataFolderPath(true);
+            if (File.Exists(filePath)) File.Delete(filePath);
+            File.WriteAllText(filePath, "{\"TestString\":\"Hello world!\"}");
+
+            var instance = FileSystemUtils.TryReadFromFile<StoreClass>();
+            Assert.IsNotNull(instance);
+            Assert.AreEqual("Hello world!", instance.TestString);
+        }
+
+        [Test]
+        public void T009_SavingClassToFile()
+        {
+            var instance = new StoreClass();
+            instance.TestString = "Hello world!";
+            FileSystemUtils.TrySaveToFile(instance);
+
+            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
+            var filePath = storeAttr.GetDefaultAppDataFolderPath(true);
+            var contents = File.ReadAllText(filePath);
+            var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<StoreClass>(contents);
+
+            Assert.IsNotNull(obj);
+            Assert.AreEqual("Hello world!", obj?.TestString);
         }
     }
 }

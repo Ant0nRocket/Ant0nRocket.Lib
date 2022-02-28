@@ -37,6 +37,7 @@ namespace Ant0nRocket.Lib.Std20.DependencyInjection
             CreateAndRememberInstance<U>(actualinterfaceType);
         }
 
+        [Obsolete]
         public static T Get<T>()
         {
             var type = typeof(T);

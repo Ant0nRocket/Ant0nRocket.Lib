@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Ant0nRocket.Lib.Std20.DependencyInjection.Attributes
 {
+    [Obsolete("Use StoreAttribute")]
     public class SaveAttribute : Attribute
     {
         private string fileName = string.Empty;

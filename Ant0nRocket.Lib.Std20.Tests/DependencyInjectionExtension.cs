@@ -18,7 +18,6 @@ namespace Ant0nRocket.Lib.Std20.Tests
         {
             var sc = new ServiceCollection();
             sc.AddSingleton<BasicClass>();
-            sc.BuildServiceProvider();
         }
     }
 }

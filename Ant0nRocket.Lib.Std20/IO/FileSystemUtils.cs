@@ -1,4 +1,6 @@
-﻿using Ant0nRocket.Lib.Std20.Logging;
+﻿using Ant0nRocket.Lib.Std20.Attributes;
+using Ant0nRocket.Lib.Std20.Logging;
+using Ant0nRocket.Lib.Std20.Reflection;
 
 using System;
 using System.IO;
@@ -43,7 +45,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
         /// leads to <i>%APPDATA%/Local</i>.
         /// </summary>
-        public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } = 
+        public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } =
             Environment.SpecialFolder.LocalApplicationData;
 
         /// <summary>
@@ -66,10 +68,10 @@ namespace Ant0nRocket.Lib.Std20.IO
         private static void AutoSetPortableState()
         {
             var dsc = Path.DirectorySeparatorChar; // "/" or "\"
-            
+
             var appBaseDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
             var portableFilePath = Path.Combine(appBaseDirectoryPath, ".portable");
-            
+
             var specialFilePortableFlag = File.Exists(portableFilePath);
             var commandLinePortableFlag = Environment.GetCommandLineArgs().Contains("--portable");
             var appBaseDirectoryNamePortableFlag = appBaseDirectoryPath.Contains($"{dsc}Debug{dsc}");
@@ -82,7 +84,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// Make sure you didn't provide a full file path here :)
         /// </summary>
         public static bool TouchDirectory(string path, bool endsWithFilename = false)
-        {            
+        {
             if (string.IsNullOrWhiteSpace(path)) return false;
 
             if (endsWithFilename)
@@ -110,7 +112,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// </summary>
         private static string GetAppNameDependentSpecialFolderPath(Environment.SpecialFolder specialFolder)
         {
-            AppName ??= Assembly.GetEntryAssembly().GetName().Name; 
+            AppName ??= Assembly.GetEntryAssembly().GetName().Name;
             var specialFolderPath = Environment.GetFolderPath(specialFolder);
             return Path.Combine(specialFolderPath, AppName);
         }
@@ -134,7 +136,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// You could change it by setting a new value to <see cref="DefaultSpecialFolder"/>.
         /// </summary>
         /// <returns></returns>
-        public static string GetDefaultAppDataFolderPath() => 
+        public static string GetDefaultAppDataFolderPath() =>
             GetAppNameDependentSpecialFolderPath(DefaultSpecialFolder);
 
         /// <summary>
@@ -146,12 +148,12 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// <b>N.B.! If <see cref="IsPortableMode"/> then base app directory will be used. Don't forget to set <paramref name="subDirectory"/> in this case.</b>
         /// </summary>
         /// <returns></returns>
-        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default, Environment.SpecialFolder specialFolder = Environment.SpecialFolder.Fonts, bool autoTouchDirectory = false) 
+        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default, Environment.SpecialFolder specialFolder = Environment.SpecialFolder.Fonts, bool autoTouchDirectory = false)
         {
             specialFolder = specialFolder == Environment.SpecialFolder.Fonts ?
                 specialFolder = DefaultSpecialFolder : specialFolder;
 
-            var rootPath = IsPortableMode ? 
+            var rootPath = IsPortableMode ?
                 AppDomain.CurrentDomain.BaseDirectory : GetAppNameDependentSpecialFolderPath(specialFolder);
 
             subDirectory ??= string.Empty;
@@ -162,6 +164,47 @@ namespace Ant0nRocket.Lib.Std20.IO
                 TouchDirectory(targetDirectory);
 
             return Path.Combine(targetDirectory, fileName);
+        }
+
+        public static T TryReadFromFile<T>() where T : class
+        {
+            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+            var filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
+            T instance = default;
+
+            if (File.Exists(filePath))
+            {
+                var fileContents = File.ReadAllText(filePath);
+                instance = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(fileContents);
+            }
+
+            if (instance == default)
+                instance = (T)Activator.CreateInstance<T>();
+
+            return instance;
+        }
+
+        public static bool TrySaveToFile<T>(T instance)
+        {
+            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+
+            if (string.IsNullOrEmpty(storeAttr.FileName)) return false;
+
+            var filePath = GetDefaultAppDataFolderPathFor(
+                storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
+
+            var contents = Newtonsoft.Json.JsonConvert.SerializeObject(instance);
+
+            try
+            {
+                File.WriteAllText(filePath, contents);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogException(ex);
+                return false;
+            }
         }
     }
 }

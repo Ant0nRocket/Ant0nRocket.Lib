@@ -9,9 +9,9 @@
 	<Description>Helpfull code: dependency injection, hasing, file-system utils, etc.</Description>
 	<PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<AssemblyVersion>1.5</AssemblyVersion>
-	<FileVersion>1.5</FileVersion>
-	<Version>1.5</Version>
+	<AssemblyVersion>1.5.1</AssemblyVersion>
+	<FileVersion>1.5.1</FileVersion>
+	<Version>1.5.1</Version>
 	<PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
   </PropertyGroup>
 

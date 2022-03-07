@@ -52,12 +52,11 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// Creates a directory <paramref name="path"/> if it doesn't exists.<br />
         /// Make sure you didn't provide a full file path here :)
         /// </summary>
-        public static bool TouchDirectory(string path, bool endsWithFilename = false)
+        public static bool TouchDirectory(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) return false;
 
-            if (endsWithFilename)
-                path = Path.GetDirectoryName(path);
+            path = Path.GetDirectoryName(path);
 
             if (!Directory.Exists(path))
             {

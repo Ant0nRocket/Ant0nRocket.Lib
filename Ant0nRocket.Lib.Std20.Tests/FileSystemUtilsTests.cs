@@ -24,8 +24,8 @@ namespace Ant0nRocket.Lib.Std20.Tests
         [Test]
         public void T002_IsPortable()
         {
-            var isPortable = FileSystemUtils.IsPortableMode;
-            Assert.AreEqual(isPortable, true);
+            var isPortable = Ant0nRocketLibConfig.IsPortableMode;
+            Assert.AreEqual(isPortable, false);
         }
 
         [Test]
@@ -54,6 +54,8 @@ namespace Ant0nRocket.Lib.Std20.Tests
         [Test]
         public void T005_GetAppDataPathForTestsArePortable()
         {
+            Ant0nRocketLibConfig.IsPortableMode = true;
+
             const string FILENAME = "somefile.dat";
             var rootPath = AppDomain.CurrentDomain.BaseDirectory;
             rootPath = Path.Combine(rootPath, FILENAME);
@@ -65,6 +67,8 @@ namespace Ant0nRocket.Lib.Std20.Tests
         [Test]
         public void T006_GetAppDataPathForTestsArePortableWithSubDirectory()
         {
+            Ant0nRocketLibConfig.IsPortableMode = true;
+
             const string FILENAME = "somefile.dat";
             const string SUBDIRECTORY = "Data";
 
@@ -78,7 +82,7 @@ namespace Ant0nRocket.Lib.Std20.Tests
         [Test]
         public void T007_GetAppDataPathForTestsAreNotPortable()
         {
-            FileSystemUtils.IsPortableMode = false;
+            Ant0nRocketLibConfig.IsPortableMode = false;
 
             const string FILENAME = "somefile.dat";
             var rootPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -88,6 +92,12 @@ namespace Ant0nRocket.Lib.Std20.Tests
             var libResult = FileSystemUtils.GetDefaultAppDataFolderPathFor(fileName: FILENAME);
 
             Assert.AreEqual(rootPath, libResult);
+        }
+
+        [Test]
+        public void T007_SetPortableToTrueForTests()
+        {
+            Ant0nRocketLibConfig.IsPortableMode = true;
         }
 
         [Test]

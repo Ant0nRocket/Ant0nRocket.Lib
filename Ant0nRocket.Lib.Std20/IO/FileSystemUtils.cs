@@ -5,7 +5,6 @@ using Ant0nRocket.Lib.Std20.Reflection;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Ant0nRocket.Lib.Std20.IO
@@ -48,37 +47,6 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// </summary>
         public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } =
             Environment.SpecialFolder.LocalApplicationData;
-
-        /// <summary>
-        /// Portable mode are usually auto-calculated but you can manually set it here.
-        /// </summary>
-        public static bool IsPortableMode { get; set; } = false;
-
-        static FileSystemUtils()
-        {
-            AutoSetPortableState();
-        }
-
-        /// <summary>
-        /// Automatically checks existance of the following conditions:<br />
-        /// 1) Is ".portable" file exists near main executable?<br />
-        /// 2) Is there a command line flag "--portable"?<br />
-        /// 3) Are the application started from folder that contains "/Debug/" or ".Tests" in name?<br />
-        /// If any of those conditions are true - portable mode will be set to true.
-        /// </summary>
-        private static void AutoSetPortableState()
-        {
-            var dsc = Path.DirectorySeparatorChar; // "/" or "\"
-
-            var appBaseDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
-            var portableFilePath = Path.Combine(appBaseDirectoryPath, ".portable");
-
-            var specialFilePortableFlag = File.Exists(portableFilePath);
-            var commandLinePortableFlag = Environment.GetCommandLineArgs().Contains("--portable");
-            var appBaseDirectoryNamePortableFlag = appBaseDirectoryPath.Contains($"{dsc}Debug{dsc}");
-
-            IsPortableMode = specialFilePortableFlag || commandLinePortableFlag || appBaseDirectoryNamePortableFlag;
-        }
 
         /// <summary>
         /// Creates a directory <paramref name="path"/> if it doesn't exists.<br />
@@ -154,7 +122,7 @@ namespace Ant0nRocket.Lib.Std20.IO
             specialFolder = specialFolder == Environment.SpecialFolder.Fonts ?
                 specialFolder = DefaultSpecialFolder : specialFolder;
 
-            var rootPath = IsPortableMode ?
+            var rootPath = Ant0nRocketLibConfig.IsPortableMode ?
                 AppDomain.CurrentDomain.BaseDirectory : GetAppNameDependentSpecialFolderPath(specialFolder);
 
             subDirectory ??= string.Empty;

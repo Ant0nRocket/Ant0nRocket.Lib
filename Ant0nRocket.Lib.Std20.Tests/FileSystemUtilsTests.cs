@@ -7,6 +7,8 @@ using Ant0nRocket.Lib.Std20.Tests.MockClasses;
 using NUnit.Framework;
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -117,6 +119,35 @@ namespace Ant0nRocket.Lib.Std20.Tests
 
             Assert.IsNotNull(obj);
             Assert.AreEqual("Hello world!", obj?.TestString);
+        }
+
+        [Test]
+        public void T010_ScanDirectoryRecursively()
+        {
+            var rootPath = Path.Combine(FileSystemUtils.GetDefaultAppDataFolderPath(), "scanTest");
+            const string D1_NAME = "d1";
+            const string D2_NAME = "d2";
+            const string D3_NAME = "d3";
+            var d1Path = Path.Combine(rootPath, D1_NAME);
+            var d2Path = Path.Combine(d1Path, D2_NAME);
+            var d3Path = Path.Combine(d2Path, D3_NAME);
+
+            FileSystemUtils.TouchDirectory(d1Path);
+            FileSystemUtils.TouchDirectory(d2Path);
+            FileSystemUtils.TouchDirectory(d3Path);
+
+            File.Create(Path.Combine(d1Path, "test.file")).Close();
+            File.Create(Path.Combine(d2Path, "test.file")).Close();
+            File.Create(Path.Combine(d3Path, "test.file")).Close();
+
+            var filesList = new List<string>();
+            FileSystemUtils.ScanDirectoryRecursively(rootPath, f => filesList.Add(f));
+
+            Assert.AreEqual(3, filesList.Count);
+
+            filesList.ForEach(f => Debug.WriteLine(f));
+            filesList.ForEach(f => File.Delete(f));
+            Directory.Delete(rootPath, true);
         }
     }
 }

@@ -3,6 +3,7 @@ using Ant0nRocket.Lib.Std20.Logging;
 using Ant0nRocket.Lib.Std20.Reflection;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -205,6 +206,16 @@ namespace Ant0nRocket.Lib.Std20.IO
                 logger.LogException(ex);
                 return false;
             }
+        }
+
+        public static void ScanDirectoryRecursively(string path, Action<string> onFileFoundAction)
+        {
+            var files = Directory.GetFiles(path);
+            foreach (var file in files) onFileFoundAction?.Invoke(file);
+
+            var directories = Directory.GetDirectories(path);
+            foreach (var directory in directories)
+                ScanDirectoryRecursively(directory, onFileFoundAction);
         }
     }
 }

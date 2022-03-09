@@ -56,8 +56,6 @@ namespace Ant0nRocket.Lib.Std20.IO
         {
             if (string.IsNullOrWhiteSpace(path)) return false;
 
-            path = Path.GetDirectoryName(path);
-
             if (!Directory.Exists(path))
             {
                 try
@@ -134,10 +132,19 @@ namespace Ant0nRocket.Lib.Std20.IO
             return Path.Combine(targetDirectory, fileName);
         }
 
-        public static T TryReadFromFile<T>() where T : class
+        /// <summary>
+        /// Tries read content of a <paramref name="filePath"/> and deserialize
+        /// it into T.<br />
+        /// <b>N.B.!</b> If something goes wrong - a new instance of T will be returned
+        /// </summary>
+        public static T TryReadFromFile<T>(string filePath = default) where T : class
         {
-            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
-            var filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
+            if (filePath == default)
+            {
+                var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+                filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
+            }
+
             T instance = default;
 
             if (File.Exists(filePath))
@@ -147,19 +154,24 @@ namespace Ant0nRocket.Lib.Std20.IO
             }
 
             if (instance == default)
-                instance = (T)Activator.CreateInstance<T>();
+                instance = Activator.CreateInstance<T>();
 
             return instance;
         }
 
-        public static bool TrySaveToFile<T>(T instance)
+        /// <summary>
+        /// Tries save serialized <paramref name="instance"/> into <paramref name="filePath"/>.
+        /// </summary>
+        public static bool TrySaveToFile<T>(T instance, string filePath = default)
         {
-            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+            if (filePath == default)
+            {
+                var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
 
-            if (string.IsNullOrEmpty(storeAttr.FileName)) return false;
-
-            var filePath = GetDefaultAppDataFolderPathFor(
-                storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
+                if (string.IsNullOrEmpty(storeAttr.FileName)) return false;
+                filePath = GetDefaultAppDataFolderPathFor(
+                    storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
+            }
 
             var contents = Newtonsoft.Json.JsonConvert.SerializeObject(instance);
 
@@ -175,6 +187,11 @@ namespace Ant0nRocket.Lib.Std20.IO
             }
         }
 
+        /// <summary>
+        /// Performs scanning of <paramref name="path"/>.<br />
+        /// Every found filename goes to <paramref name="onFileFoundAction"/> so
+        /// you could do whatever you want (make lists, do something with files, etc.)
+        /// </summary>
         public static void ScanDirectoryRecursively(string path, Action<string> onFileFoundAction)
         {
             var files = Directory.GetFiles(path);

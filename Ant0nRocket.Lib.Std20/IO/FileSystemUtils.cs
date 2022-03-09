@@ -13,6 +13,17 @@ namespace Ant0nRocket.Lib.Std20.IO
     {
         private static readonly Logger logger = Logger.Create(nameof(FileSystemUtils));
 
+        #region Serializer
+
+        private static ISerializer serializer = new DefaultSerializer();
+
+        public static ISerializer GetSerializer() => serializer;
+
+        public static void RegisterSerializer(ISerializer serializerInstance) =>
+            serializer = serializerInstance;
+
+        #endregion
+
         private static string appName = default;
 
         /// <summary>
@@ -39,6 +50,8 @@ namespace Ant0nRocket.Lib.Std20.IO
                 }
             }
         }
+
+
 
         /// <summary>
         /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
@@ -150,7 +163,7 @@ namespace Ant0nRocket.Lib.Std20.IO
             if (File.Exists(filePath))
             {
                 var fileContents = File.ReadAllText(filePath);
-                instance = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(fileContents);
+                instance = serializer.Deserialize<T>(fileContents);
             }
 
             if (instance == default)
@@ -173,7 +186,7 @@ namespace Ant0nRocket.Lib.Std20.IO
                     storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
             }
 
-            var contents = Newtonsoft.Json.JsonConvert.SerializeObject(instance);
+            var contents = serializer.Serialize(instance);
 
             try
             {

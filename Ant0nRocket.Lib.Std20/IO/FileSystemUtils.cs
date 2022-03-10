@@ -115,8 +115,12 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// You could change it by setting a new value to <see cref="DefaultSpecialFolder"/>.
         /// </summary>
         /// <returns></returns>
-        public static string GetDefaultAppDataFolderPath() =>
-            GetAppNameDependentSpecialFolderPath(DefaultSpecialFolder);
+        public static string GetDefaultAppDataFolderPath(Environment.SpecialFolder? specialFolder = null)
+        {
+            return Ant0nRocketLibConfig.IsPortableMode ?
+                AppDomain.CurrentDomain.BaseDirectory : 
+                GetAppNameDependentSpecialFolderPath(specialFolder ?? DefaultSpecialFolder);
+        }
 
         /// <summary>
         /// Will return valid data path for specified <paramref name="fileName"/>.<br />
@@ -127,13 +131,9 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// <b>N.B.! If <see cref="IsPortableMode"/> then base app directory will be used. Don't forget to set <paramref name="subDirectory"/> in this case.</b>
         /// </summary>
         /// <returns></returns>
-        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default, Environment.SpecialFolder specialFolder = Environment.SpecialFolder.Fonts, bool autoTouchDirectory = false)
+        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default, Environment.SpecialFolder? specialFolder = null, bool autoTouchDirectory = false)
         {
-            specialFolder = specialFolder == Environment.SpecialFolder.Fonts ?
-                specialFolder = DefaultSpecialFolder : specialFolder;
-
-            var rootPath = Ant0nRocketLibConfig.IsPortableMode ?
-                AppDomain.CurrentDomain.BaseDirectory : GetAppNameDependentSpecialFolderPath(specialFolder);
+            var rootPath = GetDefaultAppDataFolderPath(specialFolder);
 
             subDirectory ??= string.Empty;
 

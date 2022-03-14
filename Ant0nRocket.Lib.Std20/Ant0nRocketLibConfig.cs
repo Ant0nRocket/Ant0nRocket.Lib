@@ -31,8 +31,6 @@ namespace Ant0nRocket.Lib.Std20
         /// </summary>
         private static bool GetIsPortableModeFlagFromEnvironment()
         {
-            var dsc = Path.DirectorySeparatorChar; // "/" or "\"
-
             var appBaseDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
             var portableFilePath = Path.Combine(appBaseDirectoryPath, ".portable");
 

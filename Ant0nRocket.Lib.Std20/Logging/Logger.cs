@@ -104,13 +104,21 @@ namespace Ant0nRocket.Lib.Std20.Logging
 
         public static Logger Create(string ownerClassName) => RegisterLogger(ownerClassName);
 
-
         public static event EventHandler<(DateTime Date, string Message, LogLevel Level, string SenderClassName, string SenderMethodName)> OnLog;
+
+        public static bool LogToBasicLogWritter { get; set; } = false;
 
         public static void Log(string message, LogLevel level = LogLevel.Trace, string senderClassName = default, [CallerMemberName] string senderMethodName = default, object senderInstance = default)
         {
-            if ((int)level >= (int)currentLoggerLevel)
-                OnLog?.Invoke(senderInstance, (DateTime.Now, message, level, senderClassName, senderMethodName));
+            if ((int)level < (int)currentLoggerLevel) return;
+
+            var dateTimeOfMessage = DateTime.Now;
+
+            OnLog?.Invoke(senderInstance, (dateTimeOfMessage, message, level, senderClassName, senderMethodName));
+
+            if (LogToBasicLogWritter)
+                BasicLogWritter.WriteToLog(dateTimeOfMessage, message, level, senderClassName, senderMethodName);
+
         }
 
         public static void SetLogLevel(LogLevel level) => currentLoggerLevel = level;

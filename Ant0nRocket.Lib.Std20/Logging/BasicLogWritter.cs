@@ -26,11 +26,6 @@ namespace Ant0nRocket.Lib.Std20.Logging
             logStreamWriter.WriteLine($"{date:yyyy-MM-ddTHH:mm:ss:fff}|{level.ToString().ToUpper()}|{senderClassName}.{senderMethodName}|{message}");
         }
 
-        public static void StandardLogHandler((DateTime date, string message, LogLevel level, string senderClassName, string senderMethodName) e)
-        {
-            WriteToLog(e.date, e.message, e.level, e.senderClassName, e.senderMethodName);
-        }
-
         private static string GetFileNameForDate(DateTime date)
         {
             var logDir = "Logs";

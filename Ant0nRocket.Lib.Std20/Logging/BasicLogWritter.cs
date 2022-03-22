@@ -26,11 +26,13 @@ namespace Ant0nRocket.Lib.Std20.Logging
             logStreamWriter.WriteLine($"{date:yyyy-MM-ddTHH:mm:ss:fff}|{level.ToString().ToUpper()}|{senderClassName}.{senderMethodName}|{message}");
         }
 
+        public static string FileNamePrefix { get; set; } = null;
+
         private static string GetFileNameForDate(DateTime date)
         {
             var logDir = "Logs";
             if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
-            return Path.Combine(logDir, $"{date:yyyyMMdd}.log");
+            return Path.Combine(logDir, $"{FileNamePrefix ?? string.Empty}{date:yyyyMMdd}.log");
         }
     }
 }

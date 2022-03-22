@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,7 +7,8 @@
 	  <Description>Helpfull code: hasing, file-system utils, etc.</Description>
 	  <PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <Version>1.6.2</Version>
+    <Copyright>Ant0nRocket</Copyright>
+	  <Version>1.6.3</Version>
 	  <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
   </PropertyGroup>
 

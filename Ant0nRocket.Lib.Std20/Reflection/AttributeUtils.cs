@@ -9,7 +9,7 @@ namespace Ant0nRocket.Lib.Std20.Reflection
         public static T GetAttribute<T>(Type type) where T : Attribute =>
             (T)Attribute.GetCustomAttribute(type, typeof(T));
 
-        public static Type GetTypeAccrossAppDomain(string typeName)
+        public static Type FindTypeAccrossAppDomain(string typeName)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies)

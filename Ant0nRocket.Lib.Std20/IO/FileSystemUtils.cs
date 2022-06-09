@@ -214,5 +214,44 @@ namespace Ant0nRocket.Lib.Std20.IO
             foreach (var directory in directories)
                 ScanDirectoryRecursively(directory, onFileFoundAction);
         }
+
+
+        /// <summary>
+        /// Performs deleting of file or directory (in this case
+        /// all files will be deleted recursively).
+        /// Returnes true if deleted, othervise - false.
+        /// </summary>
+        public static bool Delete(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.Delete(path, true);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogException(ex);
+                    return false;
+                }
+            }
+
+            if (File.Exists(path))
+            {
+                try
+                {
+                    File.Delete(path);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogException(ex);
+                    return false;
+                }
+            }
+
+            return false;
+        }
     }
 }

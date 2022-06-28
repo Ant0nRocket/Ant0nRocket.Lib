@@ -132,7 +132,18 @@ namespace Ant0nRocket.Lib.Std20.Tests
         }
 
         [Test]
-        public void T010_ScanDirectoryRecursively()
+        public void T010_SavingClassToFileInNonExistingFolder()
+        {
+            var instance = new StoreClass { TestString = "Test string" };
+            var savePath = @"Some folder/Another one/And another/file.json";
+            var saveResult = FileSystemUtils.TrySaveToFile(instance, savePath);
+            Assert.That(saveResult is true);
+            Assert.That(File.Exists(savePath));
+            Assert.That(FileSystemUtils.Delete(savePath));
+        }
+
+        [Test]
+        public void T011_ScanDirectoryRecursively()
         {
             var rootPath = Path.Combine(FileSystemUtils.GetDefaultAppDataFolderPath(), "scanTest");
             const string D1_NAME = "d1";

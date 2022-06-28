@@ -190,6 +190,8 @@ namespace Ant0nRocket.Lib.Std20.IO
 
             try
             {
+                var fileDirectoryPath = Path.GetDirectoryName(filePath);
+                TouchDirectory(fileDirectoryPath);
                 File.WriteAllText(filePath, contents);
                 return true;
             }

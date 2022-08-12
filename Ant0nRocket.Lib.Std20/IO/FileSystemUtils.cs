@@ -209,6 +209,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// </summary>
         public static void ScanDirectoryRecursively(string path, Action<string> onFileFoundAction)
         {
+            if (!Directory.Exists(path)) return;
             var files = Directory.GetFiles(path);
             foreach (var file in files) onFileFoundAction?.Invoke(file);
 

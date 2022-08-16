@@ -9,20 +9,6 @@ namespace Ant0nRocket.Lib.Std20.Reflection
         public static T GetAttribute<T>(Type type) where T : Attribute =>
             (T)Attribute.GetCustomAttribute(type, typeof(T));
 
-        public static Type FindTypeAccrossAppDomain(string typeName)
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
-            {
-                var types = assembly.GetTypes();
-                var targetType = types.Where(t => t.FullName == typeName).FirstOrDefault();
-                if (targetType != null)
-                    return targetType;
-            }
-
-            return null;
-        }
-
         public static List<Type> GetTypesAccrossAppDomainWithAttribute<T>() where T : Attribute
         {
             var result = new List<Type>();

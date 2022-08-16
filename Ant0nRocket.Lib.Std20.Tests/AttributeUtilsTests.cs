@@ -17,15 +17,7 @@ namespace Ant0nRocket.Lib.Std20.Tests
         }
 
         [Test]
-        public void T002_FindTypeAccrossAppDomain()
-        {
-            var typeName = typeof(BasicClass).FullName;
-            var type = AttributeUtils.FindTypeAccrossAppDomain(typeName);
-            Assert.IsNotNull(type);
-        }
-
-        [Test]
-        public void T003_GetTypesAccrossAppDomainWithAttribute()
+        public void T002_GetTypesAccrossAppDomainWithAttribute()
         {
             var classesList = AttributeUtils.GetTypesAccrossAppDomainWithAttribute<SomeCustomAttribute>();
             Assert.That(classesList.Count == 2);

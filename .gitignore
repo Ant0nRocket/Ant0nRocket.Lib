@@ -361,11 +361,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-# Delphi files
-*.dproj.local
-*.identcache
-
-# Side-effect of WPF builder
-Data/
-*/Properties/launchSettings.json

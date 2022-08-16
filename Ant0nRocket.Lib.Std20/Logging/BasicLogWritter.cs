@@ -22,10 +22,12 @@ namespace Ant0nRocket.Lib.Std20.Logging
                 }
             }
         }
-        
+
         public static string LogFileNamePrefix { get; set; } = string.Empty;
 
         public static string CurrentFileName { get; private set; }
+
+        public static event EventHandler<BasicLogWritterEventArgs> OnLogMessageWritten;
 
         private static FileStream logStream;
         private static StreamWriter logStreamWriter;
@@ -36,11 +38,11 @@ namespace Ant0nRocket.Lib.Std20.Logging
                 Directory.CreateDirectory(LogDirectory); // yeahhh, I know, could throw an exception
 
             var logFileName = Path.Combine(
-                LogDirectory, 
+                LogDirectory,
                 $"{LogFileNamePrefix ?? string.Empty}{date:yyyyMMdd}.log");
 
             // this will auto change logfile every day (even if program didn't shutdown)
-            if (logStream == default || logFileName != CurrentFileName) 
+            if (logStream == default || logFileName != CurrentFileName)
             {
                 logStream?.Close();
                 CurrentFileName = logFileName;
@@ -48,7 +50,21 @@ namespace Ant0nRocket.Lib.Std20.Logging
                 logStreamWriter = new StreamWriter(logStream, Encoding.UTF8) { AutoFlush = true };
             }
 
-            logStreamWriter.WriteLine($"{date:yyyy-MM-ddTHH:mm:ss:fff}|{level.ToString().ToUpper()}|{senderClassName}.{senderMethodName}|{message}");
+            var logMessage = $"{date:yyyy-MM-ddTHH:mm:ss:fff}|{level.ToString().ToUpper()}|" +
+                $"{senderClassName}.{senderMethodName}|{message}";
+            logStreamWriter.WriteLine(logMessage);
+
+            if (OnLogMessageWritten != null)
+            {
+                var args = new BasicLogWritterEventArgs
+                {
+                    LogFileName = CurrentFileName,
+                    LogFileStream = logStream,
+                    LogMessage = logMessage
+                };
+
+                OnLogMessageWritten(null, args);
+            }
         }
     }
 }

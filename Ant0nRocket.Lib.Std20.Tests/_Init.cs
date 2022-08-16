@@ -11,7 +11,7 @@ namespace Ant0nRocket.Lib.Std20.Tests
         [Test]
         public void Initialize()
         {
-            BasicLogWritter.FileNamePrefix = "Ant0nRocket.Lib.Std20.Tests_";
+            BasicLogWritter.LogFileNamePrefix = "Ant0nRocket.Lib.Std20.Tests_";
             Logger.LogToBasicLogWritter = true;
         }
     }

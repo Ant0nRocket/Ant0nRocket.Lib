@@ -7,7 +7,7 @@ using Ant0nRocket.Lib.Std20.Logging;
 
 namespace Ant0nRocket.Lib.Std20.Data
 {
-    public abstract class SqlDatabaseAdapter<T> : ISqlDatabaseAdapter, IDisposable where T : IDbConnection
+    public class SqlDatabaseAdapter<T> : ISqlDatabaseAdapter, IDisposable where T : IDbConnection
     {
         protected Logger _logger = Logger.Create(nameof(SqlDatabaseAdapter<T>));
 

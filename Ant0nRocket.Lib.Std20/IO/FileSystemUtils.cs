@@ -1,30 +1,29 @@
-﻿using Ant0nRocket.Lib.Std20.Attributes;
-using Ant0nRocket.Lib.Std20.Logging;
-using Ant0nRocket.Lib.Std20.Reflection;
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Reflection;
+
+using Ant0nRocket.Lib.Std20.Attributes;
+using Ant0nRocket.Lib.Std20.Logging;
+using Ant0nRocket.Lib.Std20.Reflection;
 
 namespace Ant0nRocket.Lib.Std20.IO
 {
     public static class FileSystemUtils
     {
-        private static readonly Logger logger = Logger.Create(nameof(FileSystemUtils));
+        private static readonly Logger _logger = Logger.Create(nameof(FileSystemUtils));
 
         #region Serializer
 
-        private static ISerializer serializer = new DefaultSerializer();
+        private static ISerializer _serializer = new DefaultSerializer();
 
-        public static ISerializer GetSerializer() => serializer;
+        public static ISerializer GetSerializer() => _serializer;
 
         public static void RegisterSerializer(ISerializer serializerInstance) =>
-            serializer = serializerInstance;
+            _serializer = serializerInstance;
 
         #endregion
 
-        private static string appName = default;
+        private static string _appName = default;
 
         /// <summary>
         /// Leave it default if you want an AppName from assembly name.
@@ -33,20 +32,20 @@ namespace Ant0nRocket.Lib.Std20.IO
         {
             get
             {
-                if (appName == default)
+                if (_appName == default)
                     return Assembly.GetEntryAssembly().GetName().Name;
-                return appName;
+                return _appName;
             }
             set
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {
-                    logger.LogTrace($"AppName is '{AppName}'");
+                    _logger.LogTrace($"AppName is '{AppName}'");
                     AppName = value;
                 }
                 else
                 {
-                    appName = default;
+                    _appName = default;
                 }
             }
         }
@@ -74,11 +73,11 @@ namespace Ant0nRocket.Lib.Std20.IO
                 try
                 {
                     Directory.CreateDirectory(path);
-                    logger.LogTrace($"Directory '{path}' wasn't exists. Created");
+                    _logger.LogTrace($"Directory '{path}' wasn't exists. Created");
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException(ex, $"Unable to create directory '{path}': {ex.Message} ({ex.InnerException?.Message})");
+                    _logger.LogException(ex, $"Unable to create directory '{path}': {ex.Message} ({ex.InnerException?.Message})");
                     return false;
                 }
             }
@@ -156,6 +155,7 @@ namespace Ant0nRocket.Lib.Std20.IO
             {
                 var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
                 filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
+                _logger.LogDebug($"Argument '{nameof(filePath)}' was not provided. Set '{nameof(filePath)}' to '{filePath}'");
             }
 
             T instance = default;
@@ -163,11 +163,15 @@ namespace Ant0nRocket.Lib.Std20.IO
             if (File.Exists(filePath))
             {
                 var fileContents = File.ReadAllText(filePath);
-                instance = serializer.Deserialize<T>(fileContents);
+                instance = _serializer.Deserialize<T>(fileContents);
+                _logger.LogDebug($"File '{filePath}' found. Instance from it created? {instance != null}");
             }
 
             if (instance == default)
+            {
                 instance = Activator.CreateInstance<T>();
+                _logger.LogDebug($"File '{filePath}' was not found or unreadable. New '{typeof(T).Name}' created.");
+            }
 
             return instance;
         }
@@ -186,7 +190,7 @@ namespace Ant0nRocket.Lib.Std20.IO
                     storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
             }
 
-            var contents = serializer.Serialize(instance);
+            var contents = _serializer.Serialize(instance);
 
             try
             {
@@ -197,7 +201,7 @@ namespace Ant0nRocket.Lib.Std20.IO
             }
             catch (Exception ex)
             {
-                logger.LogException(ex);
+                _logger.LogException(ex);
                 return false;
             }
         }
@@ -235,7 +239,7 @@ namespace Ant0nRocket.Lib.Std20.IO
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException(ex);
+                    _logger.LogException(ex);
                     return false;
                 }
             }
@@ -249,7 +253,7 @@ namespace Ant0nRocket.Lib.Std20.IO
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException(ex);
+                    _logger.LogException(ex);
                     return false;
                 }
             }

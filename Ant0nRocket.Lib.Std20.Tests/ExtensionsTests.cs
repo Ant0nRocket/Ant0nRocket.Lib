@@ -1,6 +1,7 @@
 ﻿using Ant0nRocket.Lib.Std20.Extensions;
-
+using Ant0nRocket.Lib.Std20.Tests.Enums;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
@@ -31,6 +32,19 @@ namespace Ant0nRocket.Lib.Std20.Tests
             str = "ooops";
             Assert.AreEqual(str, str.Left(30));
             Assert.AreEqual(str, str.Right(30));
+        }
+
+        [Test]
+        public void Enum_GetPosibleValues()
+        {
+            var e = TestEnum.SomeFirstValue;
+            var posibleValues = e.GetPosibleValues();
+            Assert.That(posibleValues.Count() == 3);
+            Assert.That(posibleValues.Any(v => v == TestEnum.SomeFirstValue));
+            Assert.That(posibleValues.Any(v => v == TestEnum.SomeSecondValue));
+            Assert.That(posibleValues.Any(v => v == TestEnum.SomeThirdValue));
+
+            var s = e.GetDescriptions();
         }
     }
 }

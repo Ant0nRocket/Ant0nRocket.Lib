@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using Ant0nRocket.Lib.Std20.Reflection;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20.Extensions
 {
@@ -21,27 +19,34 @@ namespace Ant0nRocket.Lib.Std20.Extensions
             return Enum.GetValues(enumType).Cast<T>();
         }
 
-        public static Dictionary<T, string> GetDescriptions<T>(this T enumTypeValue) where T : struct
+        /// <summary>
+        /// Returnes dictionary that contains enum posible values as key and
+        /// descriptions that was set by <see cref="DescriptionAttribute"/> as value.<br />
+        /// If description wasn't set then value name will be used as value.
+        /// </summary>
+        public static Dictionary<T, string> GetValueDescriptionsDict<T>(this T enumTypeValue) where T : struct
         {
-            var enumType = enumTypeValue.GetType();
-            if (!enumType.IsEnum)
-                throw new ArgumentException($"{nameof(enumTypeValue)} must be Enum");
-
             var result = new Dictionary<T, string>();
 
-            var posibleValues = enumTypeValue.GetPosibleValues();
-            foreach (var value in posibleValues)
-            {
-                var m = value.GetType()
-                    .GetMembers()
-                    .Where(m => m.MemberType == System.Reflection.MemberTypes.Field && m.Name != "value__");
+            var enumType = enumTypeValue.GetType();
+            var members = enumType.GetMembers();
+            var values = GetPosibleValues(enumTypeValue);
 
-                foreach (var member in m)
-                {
-                    var descriptionAttr = AttributeUtils.GetAttribute<DescriptionAttribute>(member.GetType());
-                    var description = descriptionAttr?.Description ?? member.Name;
-                    result.Add(value, description);
-                }
+            foreach (var value in values)
+            {
+                var name = $"{value}";
+                var member = members
+                    .Where(m => m.Name == name).First() ?? 
+                    throw new InvalidOperationException($"Member '{name}' not found in '{enumType.Name}'");
+
+                var descriptionAttribute = (DescriptionAttribute)member
+                    .GetCustomAttributes(false)
+                    .Where(o => o.GetType() == typeof(DescriptionAttribute))
+                    .FirstOrDefault();
+
+                var description = descriptionAttribute?.Description ?? name;
+
+                result.Add(value, description);
             }
 
             return result;

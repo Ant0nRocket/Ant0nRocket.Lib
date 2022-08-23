@@ -44,7 +44,10 @@ namespace Ant0nRocket.Lib.Std20.Tests
             Assert.That(posibleValues.Any(v => v == TestEnum.SomeSecondValue));
             Assert.That(posibleValues.Any(v => v == TestEnum.SomeThirdValue));
 
-            var s = e.GetDescriptions();
+            var s = e.GetValueDescriptionsDict();
+            Assert.That(s[TestEnum.SomeFirstValue] == "First");
+            Assert.That(s[TestEnum.SomeSecondValue] == "Second");
+            Assert.That(s[TestEnum.SomeThirdValue] == "SomeThirdValue");
         }
     }
 }

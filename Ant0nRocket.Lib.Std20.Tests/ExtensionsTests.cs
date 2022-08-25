@@ -1,6 +1,10 @@
 ﻿using Ant0nRocket.Lib.Std20.Extensions;
 using Ant0nRocket.Lib.Std20.Tests.Enums;
+using Ant0nRocket.Lib.Std20.Tests.MockClasses;
+
 using NUnit.Framework;
+
+using System;
 using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20.Tests
@@ -20,6 +24,17 @@ namespace Ant0nRocket.Lib.Std20.Tests
 
             arrayB[0] = 2;
             Assert.IsFalse(arrayA.StrictlyEquals(arrayB));
+        }
+
+        [Test]
+        public void Object_GetPropertyValue()
+        {
+            var inst = new StoreClass();
+            var pv = inst.GetPropertyValue("TestString");
+
+            Assert.That(pv is string s && s == "Hello");
+            Assert.Throws(typeof(ArgumentException), () => pv.GetPropertyValue(null));
+            Assert.Throws(typeof(MissingMemberException), () => pv.GetPropertyValue("BlaBlaBla"));
         }
 
         [Test]

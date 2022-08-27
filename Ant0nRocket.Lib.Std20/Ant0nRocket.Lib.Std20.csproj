@@ -8,7 +8,7 @@
 	  <PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Ant0nRocket</Copyright>
-	  <Version>1.8.4.1</Version>
+	  <Version>1.8.5</Version>
 	  <PackageLicenseExpression>Beerware</PackageLicenseExpression>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>

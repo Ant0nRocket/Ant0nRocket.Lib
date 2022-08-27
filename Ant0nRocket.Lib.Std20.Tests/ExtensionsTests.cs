@@ -5,6 +5,7 @@ using Ant0nRocket.Lib.Std20.Tests.MockClasses;
 using NUnit.Framework;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20.Tests
@@ -24,6 +25,32 @@ namespace Ant0nRocket.Lib.Std20.Tests
 
             arrayB[0] = 2;
             Assert.IsFalse(arrayA.StrictlyEquals(arrayB));
+        }
+
+        [Test]
+        public void Enum_GetPosibleValues()
+        {
+            var e = TestEnum.SomeFirstValue;
+            var posibleValues = e.GetPosibleValues();
+            Assert.That(posibleValues.Count() == 3);
+            Assert.That(posibleValues.Any(v => v == TestEnum.SomeFirstValue));
+            Assert.That(posibleValues.Any(v => v == TestEnum.SomeSecondValue));
+            Assert.That(posibleValues.Any(v => v == TestEnum.SomeThirdValue));
+
+            var s = e.GetValueDescriptionsDict();
+            Assert.That(s[TestEnum.SomeFirstValue] == "First");
+            Assert.That(s[TestEnum.SomeSecondValue] == "Second");
+            Assert.That(s[TestEnum.SomeThirdValue] == "SomeThirdValue");
+        }
+
+        [Test]
+        public void HashSet_AddSecure()
+        {
+            var h = new HashSet<string>();
+            Assert.True(h.AddSecure("1"));
+            Assert.False(h.AddSecure("1"));
+            Assert.True(h.AddSecure("2"));
+            Assert.That(h.Count == 2); // 1 and 2
         }
 
         [Test]
@@ -49,20 +76,6 @@ namespace Ant0nRocket.Lib.Std20.Tests
             Assert.AreEqual(str, str.Right(30));
         }
 
-        [Test]
-        public void Enum_GetPosibleValues()
-        {
-            var e = TestEnum.SomeFirstValue;
-            var posibleValues = e.GetPosibleValues();
-            Assert.That(posibleValues.Count() == 3);
-            Assert.That(posibleValues.Any(v => v == TestEnum.SomeFirstValue));
-            Assert.That(posibleValues.Any(v => v == TestEnum.SomeSecondValue));
-            Assert.That(posibleValues.Any(v => v == TestEnum.SomeThirdValue));
-
-            var s = e.GetValueDescriptionsDict();
-            Assert.That(s[TestEnum.SomeFirstValue] == "First");
-            Assert.That(s[TestEnum.SomeSecondValue] == "Second");
-            Assert.That(s[TestEnum.SomeThirdValue] == "SomeThirdValue");
-        }
+        
     }
 }

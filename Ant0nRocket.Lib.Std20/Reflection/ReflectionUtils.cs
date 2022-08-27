@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20.Reflection
 {
+    /// <summary>
+    /// Collection of reflection utils.
+    /// </summary>
     public static class ReflectionUtils
     {
         /// <summary>

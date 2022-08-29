@@ -76,6 +76,12 @@ namespace Ant0nRocket.Lib.Std20.Tests
             Assert.AreEqual(str, str.Right(30));
         }
 
+        [Test]
+        public void String_Skip()
+        {
+            var testStr = "HHello";
+            Assert.That(testStr.Skip(1) == "Hello");
+        }
         
     }
 }

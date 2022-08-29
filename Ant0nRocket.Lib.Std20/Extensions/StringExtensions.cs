@@ -21,5 +21,14 @@
                 return value;
             return value.Substring(value.Length - charsCount);
         }
+
+        /// <summary>
+        /// Skipes <paramref name="charsCount"/> of original string and returnes result
+        /// </summary>
+        public static string Skip(this string value, int charsCount)
+        {
+            if (charsCount <= 0) charsCount = 0;
+            return value.Substring(charsCount);
+        }
     }
 }

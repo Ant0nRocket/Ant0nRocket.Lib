@@ -80,7 +80,7 @@ namespace Ant0nRocket.Lib.Std20.Tests
         public void String_Skip()
         {
             var testStr = "HHello";
-            Assert.That(testStr.Skip(1) == "Hello");
+            Assert.That(testStr.SkipChars(1) == "Hello");
         }
         
     }

@@ -82,6 +82,19 @@ namespace Ant0nRocket.Lib.Std20.Tests
             var testStr = "HHello";
             Assert.That(testStr.SkipChars(1) == "Hello");
         }
-        
+
+        [Test]
+        public void String_FromLatest()
+        {
+            var result = "Some.Test.String".FromLatest('r');
+            Assert.AreEqual("ing", result);
+
+            result = "123456789".FromLatest('x');
+            Assert.That(result == "123456789");
+
+            result = "Ant0nRocket.Lib.Std20.Tests".FromLatest('.');
+            Assert.AreEqual("Tests", result);
+        }
+
     }
 }

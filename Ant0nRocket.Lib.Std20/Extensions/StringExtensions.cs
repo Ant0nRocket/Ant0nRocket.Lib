@@ -30,5 +30,22 @@
             if (charsCount <= 0) charsCount = 0;
             return value.Substring(charsCount);
         }
+
+        /// <summary>
+        /// Returnes a substring from last found <paramref name="ch"/> to
+        /// the end of the origin.
+        /// <code>
+        /// "Some.Test.String".FromLatest('r'); // -> "ing"
+        /// "123456789".FromLatest('x'); // "123456789", entire origin
+        /// </code>
+        /// If <paramref name="ch"/> not found - origin returned.
+        /// </summary>
+        public static string FromLatest(this string value, char ch)
+        {
+            for (var i = value.Length - 1; i >= 0; i--)
+                if (value[i] == ch)
+                    return value.Substring(i + 1);
+            return value;
+        }
     }
 }

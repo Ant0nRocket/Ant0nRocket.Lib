@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+using Ant0nRocket.Lib.Std20.Extensions;
+
 namespace Ant0nRocket.Lib.Std20.Logging
 {
     /// <summary>
@@ -64,6 +66,11 @@ namespace Ant0nRocket.Lib.Std20.Logging
         public void LogFatal(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Fatal, ownerClassName, senderMethodName, sender);
+        }
+
+        public void LogObject(object obj, object sender = default, [CallerMemberName] string senderMethodName = default)
+        {
+            Log($"{obj.GetType().Name}:\n{obj.AsJson(pretty: true)}", LogLevel.Debug, ownerClassName, senderMethodName, sender);
         }
 
         #region EntityFramework

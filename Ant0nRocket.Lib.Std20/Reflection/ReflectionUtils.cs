@@ -49,7 +49,7 @@ namespace Ant0nRocket.Lib.Std20.Reflection
             {
                 var types = assembly
                     .GetTypes()
-                    .Where(t => t.IsClass);
+                    .Where(t => t.IsClass && !t.IsAbstract);
 
                 foreach (var type in types)
                 {

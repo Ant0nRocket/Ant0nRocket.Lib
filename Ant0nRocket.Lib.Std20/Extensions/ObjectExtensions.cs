@@ -44,7 +44,7 @@ namespace Ant0nRocket.Lib.Std20.Extensions
         /// <summary>
         /// Sets a value of a <paramref name="propName"/> of <paramref name="obj"/> using  reflection.
         /// </summary>
-        public static void SetPropertyValue(object obj, string propName, object value)
+        public static void SetPropertyValue(this object obj, string propName, object value)
         {
             var property = obj.GetType().GetProperties().SingleOrDefault(p => p.Name == propName) ??
                 throw new InvalidOperationException($"there should be a property with name '{propName}'");

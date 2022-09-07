@@ -65,6 +65,16 @@ namespace Ant0nRocket.Lib.Std20.Tests
         }
 
         [Test]
+        public void Object_SetPropertyValue()
+        {
+            var obj = new MockClasses.BasicClass();
+            obj.SetPropertyValue("SomeInt", 300);
+            Assert.AreEqual(300, obj.SomeInt);
+
+            Assert.Throws<InvalidOperationException>(() => obj.SetPropertyValue("some other fields", null));
+        }
+
+        [Test]
         public void String_Left_And_Right()
         {
             var str = "Hello! My name is Anton!";

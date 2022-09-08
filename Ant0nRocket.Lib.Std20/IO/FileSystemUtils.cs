@@ -117,7 +117,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         public static string GetDefaultAppDataFolderPath(Environment.SpecialFolder? specialFolder = null)
         {
             return Ant0nRocketLibConfig.IsPortableMode ?
-                AppDomain.CurrentDomain.BaseDirectory : 
+                AppDomain.CurrentDomain.BaseDirectory :
                 GetAppNameDependentSpecialFolderPath(specialFolder ?? DefaultSpecialFolder);
         }
 
@@ -149,28 +149,32 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// it into T.<br />
         /// <b>N.B.!</b> If something goes wrong - a new instance of T will be returned
         /// </summary>
-        public static T TryReadFromFile<T>(string filePath = default) where T : class
+        public static T? TryReadFromFile<T>(string? filePath = default, bool createInstanceOnError = true) where T : class
         {
             if (filePath == default)
             {
                 var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
                 filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
-                _logger.LogDebug($"Argument '{nameof(filePath)}' was not provided. Set '{nameof(filePath)}' to '{filePath}'");
             }
 
-            T instance = default;
+            T instance = default!;
 
             if (File.Exists(filePath))
             {
-                var fileContents = File.ReadAllText(filePath);
-                instance = _serializer.Deserialize<T>(fileContents);
-                _logger.LogDebug($"File '{filePath}' found. Instance from it created? {instance != null}");
+                try
+                {
+                    var fileContents = File.ReadAllText(filePath);
+                    instance = _serializer.Deserialize<T>(fileContents);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogException(ex, $"Error while reading '{filePath}' into '{typeof(T).Name}'");
+                }
             }
 
-            if (instance == default)
+            if (instance == default && createInstanceOnError)
             {
                 instance = Activator.CreateInstance<T>();
-                _logger.LogDebug($"File '{filePath}' was not found or unreadable. New '{typeof(T).Name}' created.");
             }
 
             return instance;
@@ -179,7 +183,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// <summary>
         /// Tries save serialized <paramref name="instance"/> into <paramref name="filePath"/>.
         /// </summary>
-        public static bool TrySaveToFile<T>(T instance, string filePath = default)
+        public static bool TrySaveToFile<T>(T instance, string? filePath = default)
         {
             if (filePath == default)
             {
@@ -190,10 +194,9 @@ namespace Ant0nRocket.Lib.Std20.IO
                     storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
             }
 
-            var contents = _serializer.Serialize(instance);
-
             try
             {
+                var contents = _serializer.Serialize(instance!);
                 var fileDirectoryPath = Path.GetDirectoryName(filePath);
                 TouchDirectory(fileDirectoryPath);
                 File.WriteAllText(filePath, contents);

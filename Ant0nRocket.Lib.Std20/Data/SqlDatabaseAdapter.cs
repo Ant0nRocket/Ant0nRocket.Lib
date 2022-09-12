@@ -7,14 +7,22 @@ using Ant0nRocket.Lib.Std20.Logging;
 
 namespace Ant0nRocket.Lib.Std20.Data
 {
+    /// <summary>
+    /// Basic implementation of <see cref="ISqlDatabaseAdapter"/>.
+    /// </summary>
     public class SqlDatabaseAdapter<T> : ISqlDatabaseAdapter, IDisposable where T : IDbConnection
     {
+        /// <summary>
+        /// Logger.
+        /// </summary>
         protected Logger _logger = Logger.Create(nameof(SqlDatabaseAdapter<T>));
 
-        private T _connection;
+        private T? _connection;
 
-        public string ConnectionString { get; private set; }
+        /// <inheritdoc />
+        public string? ConnectionString { get; private set; }
 
+        /// <inheritdoc />
         public bool Connect(string connectionString)
         {
             if (_connection != null && _connection.State != ConnectionState.Closed)
@@ -39,6 +47,7 @@ namespace Ant0nRocket.Lib.Std20.Data
             }
         }
 
+        /// <inheritdoc />
         public void Close()
         {
             if (_connection == null) return;
@@ -46,9 +55,11 @@ namespace Ant0nRocket.Lib.Std20.Data
             _logger.LogInformation($"Connection '{typeof(T).Name}' closed");
         }
 
+        /// <inheritdoc />
         public int ExecBatchNonQuerySql(IEnumerable<SqlParamMapper> sqlParamMappers)
         {
-            using var transaction = _connection.BeginTransaction();
+            using var transaction = _connection?.BeginTransaction() ?? 
+                throw new NoNullAllowedException(nameof(_connection));
 
             var rowsAffected = 0;
 
@@ -84,12 +95,14 @@ namespace Ant0nRocket.Lib.Std20.Data
             }
         }
 
+        /// <inheritdoc />
         public int ExecNonQuerySql(SqlParamMapper sqlParamMapper) =>
             ExecBatchNonQuerySql(new List<SqlParamMapper> { sqlParamMapper });
 
+        /// <inheritdoc />
         public void ExecQuerySql(SqlParamMapper sqlParamMapper, Action<IDataReader> onNextRowRead)
         {          
-            using var command = sqlParamMapper.CreateDbCommand(_connection);
+            using var command = sqlParamMapper.CreateDbCommand(_connection!);
 
             try
             {
@@ -104,6 +117,7 @@ namespace Ant0nRocket.Lib.Std20.Data
             }
         }
 
+        /// <inheritdoc />
         public void Dispose() => Close();
     }
 }

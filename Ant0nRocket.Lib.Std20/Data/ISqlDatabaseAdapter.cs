@@ -4,6 +4,9 @@ using System.Data;
 
 namespace Ant0nRocket.Lib.Std20.Data
 {
+    /// <summary>
+    /// Basic SQL-Database adapter.
+    /// </summary>
     public interface ISqlDatabaseAdapter
     {
         /// <summary>

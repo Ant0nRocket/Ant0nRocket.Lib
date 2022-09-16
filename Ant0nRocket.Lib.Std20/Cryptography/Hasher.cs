@@ -4,34 +4,24 @@ using System.Text;
 
 namespace Ant0nRocket.Lib.Std20.Cryptography
 {
+    /// <summary>
+    /// Class for calculating hashes.
+    /// </summary>
     public static class Hasher
     {
         /// <summary>
-        /// Performs SHA-256 or SHA-512 hashing. All other hash algorithms are deprecated.<br />
-        /// By default SHA-512 hash will be used.
+        /// Performs SHA-256, SHA-512 or MD5 hashing. All other hash algorithms are deprecated.<br />
+        /// By default SHA-256 hash will be used.
         /// </summary>
-        [Obsolete("Use ComputeHash instead")]
-        public static byte[] CalculateHash(byte[] buffer, HashAlgorithmType hashType = HashAlgorithmType.SHA256)
+        public static byte[] ComputeHash(byte[] buffer, HashAlgorithmType hashAlgorithmType = HashAlgorithmType.SHA256)
         {
-            return ComputeHash(buffer, hashType);
-        }
-
-        [Obsolete("Use ComputeHash instead")]
-        public static string CalculateHash(string value, string salt = default, HashAlgorithmType hashType = HashAlgorithmType.SHA256)
-        {
-            var bytes = Encoding.UTF8.GetBytes(salt == default ? value : value + salt);
-            var result = ComputeHash(bytes, hashType);
-            return BitConverter.ToString(result).Replace("-", string.Empty);
-        }
-
-        /// <summary>
-        /// Performs SHA-256 or SHA-512 hashing. All other hash algorithms are deprecated.<br />
-        /// By default SHA-512 hash will be used.
-        /// </summary>
-        public static byte[] ComputeHash(byte[] buffer, HashAlgorithmType hashType = HashAlgorithmType.SHA256)
-        {
-            HashAlgorithm hashAlgorithm = hashType == HashAlgorithmType.SHA256 ?
-                new SHA256Managed() : new SHA512Managed();
+            HashAlgorithm hashAlgorithm = hashAlgorithmType switch
+            {
+                HashAlgorithmType.SHA256 => new SHA256Managed(),
+                HashAlgorithmType.SHA512 => new SHA512Managed(),
+                HashAlgorithmType.MD5 => MD5.Create(),
+                _ => throw new ArgumentOutOfRangeException(nameof(hashAlgorithmType))
+            };
 
             return hashAlgorithm.ComputeHash(buffer);
         }
@@ -39,7 +29,7 @@ namespace Ant0nRocket.Lib.Std20.Cryptography
         /// <summary>
         /// Calculates hash of a string <paramref name="value"/>.<br />
         /// In addition, password salt could be added with <paramref name="salt"/>.<br />
-        /// Default hash algorithm is SHA-256. Use <paramref name="hashType"/> to change it.<br />
+        /// Default hash algorithm is SHA-256. Use <paramref name="hashAlgorithmType"/> to change it.<br />
         /// Default encoding is <see cref="Encoding.Default"/>.
         /// </summary>
         /// <returns>
@@ -47,13 +37,13 @@ namespace Ant0nRocket.Lib.Std20.Cryptography
         /// </returns>
         public static byte[] ComputeHash(
             string value,
-            string salt = default,
-            HashAlgorithmType hashType = HashAlgorithmType.SHA256,
-            Encoding encoding = default)
+            string? salt = default,
+            HashAlgorithmType hashAlgorithmType = HashAlgorithmType.SHA256,
+            Encoding? encoding = default)
         {
             encoding ??= Encoding.Default;
-            var bytes = encoding.GetBytes(salt == default ? value : value + salt);
-            var result = ComputeHash(bytes, hashType);
+            var bytes = encoding.GetBytes(salt == default ? value : value + salt ?? string.Empty);
+            var result = ComputeHash(bytes, hashAlgorithmType);
             return result;
 
         }

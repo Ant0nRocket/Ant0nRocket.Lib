@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
-    public class ExtensionsTests
+    public class ExtensionsTests : _TestsBase
     {
         [Test]
         public void ByteArray_StrictlyEquals()

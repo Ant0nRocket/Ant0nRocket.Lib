@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Linq;
 
-using Newtonsoft.Json;
-
 namespace Ant0nRocket.Lib.Std20.Extensions
 {
+    /// <summary>
+    /// Extensions of a type 'object'.
+    /// </summary>
     public static class ObjectExtensions
     {
         /// <summary>
-        /// Returnes a JSON (string) value of an <paramref name="obj"/>.<br />
-        /// If <paramref name="pretty"/> is true then formatting will be applyed.<br />
-        /// <b><see cref="Newtonsoft.Json"/> package will be used!</b>.
+        /// Returnes a JSON (string) value of an <paramref name="obj"/>.
+        /// If <paramref name="pretty"/> is true then formatting will be applyed.
         /// </summary>
         public static string AsJson(this object obj, bool pretty = false)
         {
-            var formatting = pretty ? Formatting.Indented : Formatting.None;
-            return JsonConvert.SerializeObject(obj, formatting);
+            return Ant0nRocketLibConfig.GetJsonSerializer().Serialize(obj, pretty);
         }
 
         /// <summary>

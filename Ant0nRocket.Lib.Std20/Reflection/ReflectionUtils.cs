@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Ant0nRocket.Lib.Std20.Logging;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Ant0nRocket.Lib.Std20.Reflection
 {
@@ -9,6 +12,35 @@ namespace Ant0nRocket.Lib.Std20.Reflection
     /// </summary>
     public static class ReflectionUtils
     {
+        private static readonly Logger _logger = Logger.Create(nameof(ReflectionUtils));
+
+        private static string? _appName = default;
+
+        /// <summary>
+        /// Leave it default if you want an AppName from assembly name.
+        /// </summary>
+        public static string AppName
+        {
+            get
+            {
+                if (_appName == default)
+                    return Assembly.GetEntryAssembly().GetName().Name;
+                return _appName;
+            }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    _logger.LogTrace($"AppName is '{AppName}'");
+                    AppName = value;
+                }
+                else
+                {
+                    _appName = default;
+                }
+            }
+        }
+
         /// <summary>
         /// Performes search of type full name specified as string 
         /// <paramref name="typeName"/> and returnes <see cref="Type"/> if

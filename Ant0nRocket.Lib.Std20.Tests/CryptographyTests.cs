@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
-    public class CryptographyTests
+    public class CryptographyTests : _TestsBase
     {
         [Test]
         public void T001_Hasher_CalculateHash_SHA256()

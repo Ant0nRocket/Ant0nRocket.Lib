@@ -1,9 +1,14 @@
-﻿using System;
+﻿using Ant0nRocket.Lib.Std20.Serialization;
+
+using System;
 using System.IO;
 using System.Linq;
 
 namespace Ant0nRocket.Lib.Std20
 {
+    /// <summary>
+    /// Configuration of a <see cref="Lib"/>.
+    /// </summary>
     public class Ant0nRocketLibConfig
     {
         #region IsPortableMode
@@ -39,6 +44,29 @@ namespace Ant0nRocket.Lib.Std20
 
             return specialFilePortableFlag || commandLinePortableFlag;
         }
+
+        #endregion
+
+        #region Json serializer
+
+        private static IJsonSerializer? _jsonSerializer;
+
+        /// <summary>
+        /// Returnes registred with <see cref="RegisterJsonSerializer(IJsonSerializer)"/> JSON serializer.
+        /// </summary>
+        /// <exception cref="ApplicationException">When no serializer were registred</exception>
+        public static IJsonSerializer GetJsonSerializer()
+        {
+            if (_jsonSerializer == null)
+                throw new ApplicationException($"Call '{nameof(RegisterJsonSerializer)}' first, current serializer is null");
+            return _jsonSerializer;
+        }
+
+        /// <summary>
+        /// Simply registers <paramref name="jsonSerializer"/> as a new library-wide JSON serializer.
+        /// </summary>
+        public static void RegisterJsonSerializer(IJsonSerializer jsonSerializer) =>
+            _jsonSerializer = jsonSerializer;
 
         #endregion
     }

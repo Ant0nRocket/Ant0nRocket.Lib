@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-
-using Ant0nRocket.Lib.Std20.Attributes;
+﻿using Ant0nRocket.Lib.Std20.Attributes;
 using Ant0nRocket.Lib.Std20.Logging;
 using Ant0nRocket.Lib.Std20.Reflection;
+
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace Ant0nRocket.Lib.Std20.IO
 {
@@ -12,45 +12,7 @@ namespace Ant0nRocket.Lib.Std20.IO
     {
         private static readonly Logger _logger = Logger.Create(nameof(FileSystemUtils));
 
-        #region Serializer
-
-        private static ISerializer _serializer = new DefaultSerializer();
-
-        public static ISerializer GetSerializer() => _serializer;
-
-        public static void RegisterSerializer(ISerializer serializerInstance) =>
-            _serializer = serializerInstance;
-
-        #endregion
-
-        private static string _appName = default;
-
-        /// <summary>
-        /// Leave it default if you want an AppName from assembly name.
-        /// </summary>
-        public static string AppName
-        {
-            get
-            {
-                if (_appName == default)
-                    return Assembly.GetEntryAssembly().GetName().Name;
-                return _appName;
-            }
-            set
-            {
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    _logger.LogTrace($"AppName is '{AppName}'");
-                    AppName = value;
-                }
-                else
-                {
-                    _appName = default;
-                }
-            }
-        }
-
-
+        
 
         /// <summary>
         /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
@@ -90,9 +52,9 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// </summary>
         private static string GetAppNameDependentSpecialFolderPath(Environment.SpecialFolder specialFolder)
         {
-            AppName ??= Assembly.GetEntryAssembly().GetName().Name;
+            ReflectionUtils.AppName ??= Assembly.GetEntryAssembly().GetName().Name;
             var specialFolderPath = Environment.GetFolderPath(specialFolder);
-            return Path.Combine(specialFolderPath, AppName);
+            return Path.Combine(specialFolderPath, ReflectionUtils.AppName);
         }
 
         /// <summary>
@@ -130,7 +92,7 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// <b>N.B.! If <see cref="IsPortableMode"/> then base app directory will be used. Don't forget to set <paramref name="subDirectory"/> in this case.</b>
         /// </summary>
         /// <returns></returns>
-        public static string GetDefaultAppDataFolderPathFor(string fileName, string subDirectory = default, Environment.SpecialFolder? specialFolder = null, bool autoTouchDirectory = false)
+        public static string GetDefaultAppDataFolderPathFor(string fileName, string? subDirectory = default, Environment.SpecialFolder? specialFolder = null, bool autoTouchDirectory = false)
         {
             var rootPath = GetDefaultAppDataFolderPath(specialFolder);
 
@@ -149,8 +111,11 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// it into T.<br />
         /// <b>N.B.!</b> If something goes wrong - a new instance of T will be returned
         /// </summary>
-        public static T? TryReadFromFile<T>(string? filePath = default, bool createInstanceOnError = true) where T : class
+        public static T? TryReadFromFile<T>(string? filePath = default, bool createInstanceOnError = true) where T : class, new()
         {
+            // This could throw so better call it here, before try block
+            var jsonSerializer = Ant0nRocketLibConfig.GetJsonSerializer();
+
             if (filePath == default)
             {
                 var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
@@ -164,7 +129,7 @@ namespace Ant0nRocket.Lib.Std20.IO
                 try
                 {
                     var fileContents = File.ReadAllText(filePath);
-                    instance = _serializer.Deserialize<T>(fileContents);
+                    instance = jsonSerializer.Deserialize<T>(fileContents, throwExceptions: true);
                 }
                 catch (Exception ex)
                 {
@@ -183,22 +148,38 @@ namespace Ant0nRocket.Lib.Std20.IO
         /// <summary>
         /// Tries save serialized <paramref name="instance"/> into <paramref name="filePath"/>.
         /// </summary>
-        public static bool TrySaveToFile<T>(T instance, string? filePath = default)
+        public static bool TrySaveToFile<T>(T instance, string? filePath = default, bool? backupOldData = default)
         {
+            // This could throw so better call it here, before try block
+            var jsonSerializer = Ant0nRocketLibConfig.GetJsonSerializer();
+
+            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+
+            backupOldData ??= storeAttr.BackupOldData; // if not provided - take from attribute
+            
             if (filePath == default)
             {
-                var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+                if (string.IsNullOrEmpty(storeAttr.FileName) || string.IsNullOrWhiteSpace(storeAttr.FileName))
+                {
+                    throw new ApplicationException($"Neigther provide '{nameof(filePath)}' argument " +
+                        $"or correct '{nameof(StoreAttribute)}' with {nameof(StoreAttribute.FileName)} specified");
+                }
 
-                if (string.IsNullOrEmpty(storeAttr.FileName)) return false;
                 filePath = GetDefaultAppDataFolderPathFor(
                     storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
             }
 
             try
             {
-                var contents = _serializer.Serialize(instance!);
+                var contents = jsonSerializer.Serialize(instance!);
                 var fileDirectoryPath = Path.GetDirectoryName(filePath);
                 TouchDirectory(fileDirectoryPath);
+
+                if (backupOldData == true && File.Exists(filePath))
+                {
+                    File.Copy(filePath, $"{filePath}.{DateTime.Now.Ticks}.bak");
+                }
+
                 File.WriteAllText(filePath, contents);
                 return true;
             }

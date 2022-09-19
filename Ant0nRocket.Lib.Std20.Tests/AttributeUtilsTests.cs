@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
-    internal class AttributeUtilsTests
+    internal class AttributeUtilsTests : _TestsBase
     {
         [Test]
         public void T001_GetAttribute()

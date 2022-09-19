@@ -14,12 +14,12 @@ using System.Reflection;
 
 namespace Ant0nRocket.Lib.Std20.Tests
 {
-    public class FileSystemUtilsTests
+    public class FileSystemUtilsTests : _TestsBase
     {
         [Test]
         public void T001_AppName()
         {
-            var appName = FileSystemUtils.AppName;
+            var appName = ReflectionUtils.AppName;
             Assert.AreEqual(appName, "testhost");
         }
 
@@ -110,7 +110,7 @@ namespace Ant0nRocket.Lib.Std20.Tests
             if (File.Exists(filePath)) File.Delete(filePath);
             File.WriteAllText(filePath, "{\"TestString\":\"Hello world!\"}");
 
-            var instance = FileSystemUtils.TryReadFromFile<StoreClass>();
+            var instance = FileSystemUtils.TryReadFromFile<StoreClass>(createInstanceOnError: false);
             Assert.IsNotNull(instance);
             Assert.AreEqual("Hello world!", instance.TestString);
         }

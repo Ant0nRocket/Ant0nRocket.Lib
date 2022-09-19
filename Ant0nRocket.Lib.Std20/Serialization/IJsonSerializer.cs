@@ -18,7 +18,7 @@ namespace Ant0nRocket.Lib.Std20.Serialization
         /// Same as <see cref="Deserialize{T}(string, bool)"/> but type specified manually.
         /// Usefull when runtime deserialization take place. Same exceptions policy.
         /// </summary>
-        object Deserialize(string contents, Type type, bool throwExceptions);
+        object Deserialize(string contents, Type type, bool throwExceptions = false);
 
         /// <summary>
         /// Serializes <paramref name="obj"/> into string JSON. If <paramref name="pretty"/> is true

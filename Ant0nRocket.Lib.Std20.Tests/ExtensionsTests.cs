@@ -44,6 +44,18 @@ namespace Ant0nRocket.Lib.Std20.Tests
         }
 
         [Test]
+        public void Exception_GetFullExceptionErrorMessage()
+        {
+            ApplicationException testex = null!;
+            Assert.AreEqual(string.Empty, testex.GetFullExceptionErrorMessage());
+
+            var ex1 = new ApplicationException("ex1");
+            var ex2 = new ApplicationException("ex2", ex1);
+            var ex3 = new ApplicationException("ex3", ex2);
+            Assert.AreEqual("ex3 -> ex2 -> ex1", ex3.GetFullExceptionErrorMessage());
+        }
+
+        [Test]
         public void HashSet_AddSecure()
         {
             var h = new HashSet<string>();

@@ -118,5 +118,18 @@ namespace Ant0nRocket.Lib.Std20.Tests
             Assert.AreEqual("Tests", result);
         }
 
+        [Test]
+        public void String_GetFirstWord()
+        {
+            var sentance1 = "Hello from simple string";
+            Assert.AreEqual("Hello", sentance1.GetFirstWord());
+
+            sentance1 = "some\tother string";
+            Assert.AreEqual("some", sentance1.GetFirstWord());
+
+            sentance1 = "word";
+            Assert.AreEqual("word", sentance1.GetFirstWord());
+        }
+
     }
 }

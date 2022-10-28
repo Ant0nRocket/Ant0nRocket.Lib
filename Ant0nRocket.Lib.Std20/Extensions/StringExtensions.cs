@@ -60,8 +60,11 @@
         /// Will return first word from specified string (or whole string if no other words).<br />
         /// Words separators are <see cref="SPACE_CHARS"/>.
         /// </summary>
-        public static string GetFirstWord(this string value)
+        public static string GetFirstWord(this string? value)
         {
+            if (value == default)
+                return string.Empty;
+
             for (var valueIndex = 0; valueIndex < value.Length; valueIndex++)
             {
                 for (var spaceCharsIndex = 0; spaceCharsIndex < SPACE_CHARS.Length; spaceCharsIndex++)

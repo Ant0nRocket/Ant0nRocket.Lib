@@ -8,7 +8,7 @@
 	  <PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Ant0nRocket</Copyright>
-	  <Version>2.1.0-preview4</Version>
+	  <Version>2.1.0-preview5</Version>
 	  <PackageLicenseExpression>Beerware</PackageLicenseExpression>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <Nullable>enable</Nullable>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <Target Name="PostPackNugetDeploy" AfterTargets="Pack">
-    <Exec Command="nuget.exe add &quot;$(ProjectDir)$(OutputPath)../$(PackageId).$(PackageVersion).nupkg&quot; -source ../../.nuget_local_repo" />
+    <Exec Command="nuget.exe add &quot;$(ProjectDir)$(OutputPath)../$(PackageId).$(PackageVersion).nupkg&quot; -source ../../.nuget_local" />
   </Target>
 
 </Project>

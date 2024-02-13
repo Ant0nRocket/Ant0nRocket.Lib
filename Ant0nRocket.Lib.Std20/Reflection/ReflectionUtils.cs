@@ -63,7 +63,7 @@ namespace Ant0nRocket.Lib.Std20.Reflection
         }
 
         /// <summary>
-        /// Cache for <see cref="FindType(string, bool)"/> function
+        /// Cache for <see cref="FindType(string)"/> function
         /// </summary>
         private static Dictionary<string, Type>? __dictName2Type = default;
 

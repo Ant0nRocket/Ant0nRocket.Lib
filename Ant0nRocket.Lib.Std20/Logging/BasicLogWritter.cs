@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Ant0nRocket.Lib.Std20.Logging
 {
+    [Obsolete]
     public static class BasicLogWritter
     {
         private static string logDirectory = "Logs";

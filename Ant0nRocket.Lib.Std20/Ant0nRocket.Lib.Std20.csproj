@@ -1,28 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<LangVersion>9.0</LangVersion>
+		<Description>Helpfull code: hasing, file-system utils, etc.</Description>
+		<PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Copyright>Ant0nRocket</Copyright>
+		<Version>3.0.0-preview5</Version>
+		<PackageLicenseExpression>Beerware</PackageLicenseExpression>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	  <LangVersion>9.0</LangVersion>
-	  <Description>Helpfull code: hasing, file-system utils, etc.</Description>
-	  <PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Copyright>Ant0nRocket</Copyright>
-	  <Version>2.1.0-preview4</Version>
-	  <PackageLicenseExpression>Beerware</PackageLicenseExpression>
-	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<ItemGroup>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <Target Name="PostPackNugetDeploy" AfterTargets="Pack">
-    <Exec Command="nuget.exe add &quot;$(ProjectDir)$(OutputPath)../$(PackageId).$(PackageVersion).nupkg&quot; -source ../../.nuget_local_repo" />
-  </Target>
-
+	<Target Name="PostPackNugetDeploy" AfterTargets="Pack">
+		<Exec Command="nuget.exe add &quot;$(ProjectDir)$(OutputPath)../$(PackageId).$(PackageVersion).nupkg&quot; -source ../../.nuget_local_repo" />
+	</Target>
 </Project>

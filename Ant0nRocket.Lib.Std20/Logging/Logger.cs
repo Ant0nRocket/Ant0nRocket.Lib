@@ -18,43 +18,87 @@ namespace Ant0nRocket.Lib.Std20.Logging
     /// </summary>
     public class Logger
     {
+        // Current logger level. By default all levels will be passed.
+        private static LogLevel __logLevel = LogLevel.All;
+
+        // Collection of ILogEntityHandlers.
+        private static readonly List<ILogEntityHandler> __logEntityHandlers = new();
+
+        /// <summary>
+        /// Registers <see cref="ILogEntityHandler"/> as a handler of incoming messages
+        /// </summary>
+        /// <exception cref="ArgumentNullException" />
+        public static void RegisterLogEntityHandler(ILogEntityHandler logEntityHandler)
+        {
+            if (logEntityHandler != default)
+                __logEntityHandlers.Add(logEntityHandler);
+        }
+
+        /// <summary>
+        /// Log specified <paramref name="logEntity"/>
+        /// </summary>
+        public static void Log(LogEntity logEntity)
+        {
+            foreach (var logHandler in __logEntityHandlers)
+            {
+                logHandler.Handle(logEntity);
+            }
+        }
+
+        /// <summary>
+        /// Shorthand for <see cref="Log(LogEntity)"/> useful when you
+        /// don't want to specify any additional params except message.
+        /// TRACE level message will be written.
+        /// </summary>
+        public static void Log(string message) => Log(new LogEntity { Message = message });
+
+        #region OBSOLETE region
+
         private readonly string ownerClassName;
 
+        [Obsolete]
         public Logger()
         {
             ownerClassName = nameof(Logger);
         }
 
+        [Obsolete]
         public Logger(string ownerClassName)
         {
             this.ownerClassName = ownerClassName;
         }
 
+        [Obsolete]
         public void LogTrace(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Trace, ownerClassName, senderMethodName, sender);
         }
 
+        [Obsolete]
         public void LogDebug(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Debug, ownerClassName, senderMethodName, sender);
         }
 
+        [Obsolete]
         public void LogInformation(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Info, ownerClassName, senderMethodName, sender);
         }
 
+        [Obsolete]
         public void LogWarning(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Warn, ownerClassName, senderMethodName, sender);
         }
 
+        [Obsolete]
         public void LogError(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Error, ownerClassName, senderMethodName, sender);
         }
 
+        [Obsolete]
         public void LogException(Exception ex, string prefix = default, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             const string STD_PREFIX = "Exception";
@@ -63,11 +107,13 @@ namespace Ant0nRocket.Lib.Std20.Logging
             LogError(message, sender, senderMethodName);
         }
 
+        [Obsolete]
         public void LogFatal(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Fatal, ownerClassName, senderMethodName, sender);
         }
 
+        [Obsolete]
         public void LogObject(object obj, object sender = default, [CallerMemberName] string senderMethodName = default)
         {
             Log($"{obj.GetType().Name}:\n{obj.AsJson(pretty: true)}", LogLevel.Debug, ownerClassName, senderMethodName, sender);
@@ -77,9 +123,13 @@ namespace Ant0nRocket.Lib.Std20.Logging
 
         private static bool isEntityFrameworkLoggingEnabled = true;
 
+        [Obsolete]
         public static void EnableEntityFrameworkLogging() => isEntityFrameworkLoggingEnabled = true;
+
+        [Obsolete]
         public static void DisableEntityFrameworkLoggins() => isEntityFrameworkLoggingEnabled = false;
 
+        [Obsolete]
         public void LogEF(string value)
         {
             if (isEntityFrameworkLoggingEnabled)
@@ -105,16 +155,22 @@ namespace Ant0nRocket.Lib.Std20.Logging
             return RegisterLogger(ownerClassName);
         }
 
+        [Obsolete]
         public static Logger Create() => RegisterLogger();
 
+        [Obsolete]
         public static Logger Create<T>() => RegisterLogger($"{typeof(T)}");
 
+        [Obsolete]
         public static Logger Create(string ownerClassName) => RegisterLogger(ownerClassName);
 
+        [Obsolete]
         public static event EventHandler<(DateTime Date, string Message, LogLevel Level, string SenderClassName, string SenderMethodName)> OnLog;
 
+        [Obsolete]
         public static bool LogToBasicLogWritter { get; set; } = false;
 
+        [Obsolete]
         public static void Log(string message, LogLevel level = LogLevel.Trace, string senderClassName = default, [CallerMemberName] string senderMethodName = default, object senderInstance = default)
         {
             if ((int)level < (int)currentLoggerLevel) return;
@@ -128,6 +184,9 @@ namespace Ant0nRocket.Lib.Std20.Logging
 
         }
 
+        [Obsolete]
         public static void SetLogLevel(LogLevel level) => currentLoggerLevel = level;
+
+        #endregion
     }
 }

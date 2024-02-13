@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Ant0nRocket.Lib.Std20.Logging
 {
+    [Obsolete]
     public class BasicLogWritterEventArgs
     {
         public string LogMessage { get; set; }

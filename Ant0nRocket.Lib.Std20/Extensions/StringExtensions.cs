@@ -26,12 +26,15 @@
         }
 
         /// <summary>
-        /// Skipes <paramref name="charsCount"/> of original string and returnes result
+        /// Skipes <paramref name="charsCount"/> of original string and returnes result.
+        /// If <paramref name="charsCount"/> less or equal zero - <paramref name="value"/> returned.
+        /// If <paramref name="value"/> is null - <see cref="string.Empty"/> returned.
         /// </summary>
-        public static string SkipChars(this string value, int charsCount)
+        public static string SkipChars(this string? value, int charsCount)
         {
-            if (charsCount <= 0) charsCount = 0;
-            return value.Substring(charsCount);
+            if (charsCount <= 0 || charsCount > value?.Length)
+                return value ?? string.Empty;
+            return value?.Substring(charsCount) ?? string.Empty;
         }
 
         /// <summary>

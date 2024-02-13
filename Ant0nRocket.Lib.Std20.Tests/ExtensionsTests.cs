@@ -103,6 +103,11 @@ namespace Ant0nRocket.Lib.Std20.Tests
         {
             var testStr = "HHello";
             Assert.That(testStr.SkipChars(1) == "Hello");
+
+            Assert.That(testStr.SkipChars(-1) == testStr);
+
+            string? testStr2 = default;
+            Assert.That(testStr2.SkipChars(1) == string.Empty);
         }
 
         [Test]

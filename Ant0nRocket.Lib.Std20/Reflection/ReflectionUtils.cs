@@ -77,7 +77,7 @@ namespace Ant0nRocket.Lib.Std20.Reflection
             var t = typeof(T);
 
             ForEachTypeInDomain(type => {
-                if (t.IsAssignableFrom(type))
+                if (t.Equals(type) == false && t.IsAssignableFrom(type))
                     result.Add(type);
             });
 
@@ -96,7 +96,7 @@ namespace Ant0nRocket.Lib.Std20.Reflection
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies)
             {
-                var types = assembly.GetExportedTypes();
+                var types = assembly.GetTypes();
                 foreach (var type in types)
                 {
                     doSomeActionWith(type);
@@ -109,32 +109,13 @@ namespace Ant0nRocket.Lib.Std20.Reflection
 
         private static readonly Logger _logger = Logger.Create(nameof(ReflectionUtils));
 
-        private static string? _appName = default;
+        //private static string? _appName = default;
 
         /// <summary>
         /// Leave it default if you want an AppName from assembly name.
         /// </summary>
-        public static string AppName
-        {
-            get
-            {
-                if (_appName == default)
-                    return Assembly.GetEntryAssembly().GetName().Name;
-                return _appName;
-            }
-            set
-            {
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    _logger.LogTrace($"AppName is '{AppName}'");
-                    AppName = value;
-                }
-                else
-                {
-                    _appName = default;
-                }
-            }
-        }
+        [Obsolete]
+        public static string AppName { get => GetAppName(); set => SetAppName(value); }
 
         /// <summary>
         /// Performes search of type full name specified as string 
@@ -143,18 +124,10 @@ namespace Ant0nRocket.Lib.Std20.Reflection
         /// </summary>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public static Type FindTypeAccrossAppDomain(string typeName)
+        [Obsolete]
+        public static Type? FindTypeAccrossAppDomain(string typeName)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
-            {
-                var types = assembly.GetTypes();
-                var targetType = types.Where(t => t.FullName == typeName).FirstOrDefault();
-                if (targetType != null)
-                    return targetType;
-            }
-
-            return null;
+            return FindType(typeName);
         }
 
         /// <summary>
@@ -162,30 +135,35 @@ namespace Ant0nRocket.Lib.Std20.Reflection
         /// specified by <typeparamref name="T"/> interface.<br />
         /// If any class found it will be added to result list, or empty list returned.
         /// </summary>
+        [Obsolete]
         public static IEnumerable<Type> GetClassesThatImplementsInterface<T>() where T : class
         {
             if (!typeof(T).IsInterface)
                 throw new ArgumentException($"Type '{typeof(T).Name}' is not an interface");
 
-            var resultList = new List<Type>();
-            var assemblies = AppDomain
-                .CurrentDomain
-                .GetAssemblies();
+            return GetTypesThatImplements<T>();
 
-            foreach (var assembly in assemblies)
-            {
-                var types = assembly
-                    .GetTypes()
-                    .Where(t => t.IsClass && !t.IsAbstract);
+            
 
-                foreach (var type in types)
-                {
-                    if (typeof(T).IsAssignableFrom(type))
-                        resultList.Add(type);
-                }
-            }
+            //var resultList = new List<Type>();
+            //var assemblies = AppDomain
+            //    .CurrentDomain
+            //    .GetAssemblies();
 
-            return resultList;
+            //foreach (var assembly in assemblies)
+            //{
+            //    var types = assembly
+            //        .GetTypes()
+            //        .Where(t => t.IsClass && !t.IsAbstract);
+
+            //    foreach (var type in types)
+            //    {
+            //        if (typeof(T).IsAssignableFrom(type))
+            //            resultList.Add(type);
+            //    }
+            //}
+
+            //return resultList;
         }
 
         #endregion

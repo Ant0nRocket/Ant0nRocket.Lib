@@ -14,6 +14,12 @@ namespace Ant0nRocket.Lib.Std20
         public static event Action<string>? OnSignalMessage;
 
         /// <summary>
+        /// Raised when someone send a message with <see cref="Send(string, string)"/>.<br />
+        /// First string is a message, second - chanel.
+        /// </summary>
+        public static event Action<string, string>? OnSignalMessageInChannel;
+
+        /// <summary>
         /// Raised when someone send a <see cref="SignalCode"/> with <see cref="Send(SignalCode)"/>
         /// </summary>
         public static event Action<SignalCode>? OnSignalCode;
@@ -22,6 +28,7 @@ namespace Ant0nRocket.Lib.Std20
         /// Raised when someone send an exception with <see cref="Send(Exception)"/>
         /// </summary>
         public static event Action<Exception>? OnException;
+
 
         /// <summary>
         /// Send the <paramref name="signalMessage"/> to everyone
@@ -32,6 +39,21 @@ namespace Ant0nRocket.Lib.Std20
             try
             {
                 OnSignalMessage?.Invoke(signalMessage);
+            }
+            catch (Exception ex)
+            {
+                Send(ex);
+            }
+        }
+
+        /// <summary>
+        /// Send the <paramref name="message"/> via <paramref name="channel"/>
+        /// </summary>
+        public static void Send(string message, string channel)
+        {
+            try
+            {
+                OnSignalMessageInChannel?.Invoke(message, channel);
             }
             catch (Exception ex)
             {

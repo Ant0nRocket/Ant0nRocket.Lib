@@ -26,5 +26,15 @@ namespace Ant0nRocket.Lib.Std20.Logging
         /// Date and time (local) when this message were created
         /// </summary>
         public DateTime DateTimeLocal => DateTimeUtc.ToLocalTime();
+
+        /// <summary>
+        /// Name of the sender class
+        /// </summary>
+        public string SenderClassName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Name of of method that send current entity
+        /// </summary>
+        public string SenderMethodName { get; set; } = string.Empty;
     }
 }

@@ -105,14 +105,14 @@ namespace Ant0nRocket.Lib.Std20.Tests
         [Test]
         public void T008_ReadingClassFromFile()
         {
-            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
-            var filePath = storeAttr.GetDefaultAppDataFolderPath(true);
+            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
+            var filePath = storeAttr!.GetDefaultAppDataFolderPath(true);
             if (File.Exists(filePath)) File.Delete(filePath);
             File.WriteAllText(filePath, "{\"TestString\":\"Hello world!\"}");
 
             var instance = FileSystemUtils.TryReadFromFile<StoreClass>(createInstanceOnError: false);
             Assert.IsNotNull(instance);
-            Assert.AreEqual("Hello world!", instance.TestString);
+            Assert.AreEqual("Hello world!", instance!.TestString);
         }
 
         [Test]
@@ -122,8 +122,8 @@ namespace Ant0nRocket.Lib.Std20.Tests
             instance.TestString = "Hello world!";
             FileSystemUtils.TrySaveToFile(instance);
 
-            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
-            var filePath = storeAttr.GetDefaultAppDataFolderPath(true);
+            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
+            var filePath = storeAttr!.GetDefaultAppDataFolderPath(true);
             var contents = File.ReadAllText(filePath);
             var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<StoreClass>(contents);
 

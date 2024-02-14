@@ -1,4 +1,5 @@
 ﻿using Ant0nRocket.Lib.Std20.Reflection;
+using Ant0nRocket.Lib.Std20.Tests.MockAttributes;
 using Ant0nRocket.Lib.Std20.Tests.MockClasses;
 using Ant0nRocket.Lib.Std20.Tests.MockInterfaces;
 
@@ -35,6 +36,16 @@ namespace Ant0nRocket.Lib.Std20.Tests
             
             TestDelegate exceptionAction = () => ReflectionUtils.GetClassesThatImplementsInterface<BasicClass>();
             Assert.Throws<ArgumentException>(exceptionAction);
+        }
+
+        [Test]
+        public void T003_GetAttribute()
+        {
+            var someCustumAttr = ReflectionUtils.GetAttribute<SomeCustomAttribute>(typeof(BasicClass));
+            Assert.IsNotNull(someCustumAttr);
+
+            someCustumAttr = ReflectionUtils.GetAttribute<SomeCustomAttribute>(typeof(string));
+            Assert.IsNull(someCustumAttr);
         }
     }
 }

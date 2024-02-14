@@ -118,7 +118,7 @@ namespace Ant0nRocket.Lib.Std20.IO
 
             if (filePath == default)
             {
-                var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+                var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
                 filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
             }
 
@@ -153,7 +153,7 @@ namespace Ant0nRocket.Lib.Std20.IO
             // This could throw so better call it here, before try block
             var jsonSerializer = Ant0nRocketLibConfig.GetJsonSerializer();
 
-            var storeAttr = AttributeUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
+            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
 
             backupOldData ??= storeAttr.BackupOldData; // if not provided - take from attribute
             

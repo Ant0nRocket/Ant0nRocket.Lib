@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -50,7 +49,8 @@ namespace Ant0nRocket.Lib.Std20.Reflection
             {
                 __dictName2Type = new();
 
-                ForEachTypeInDomain(type => {
+                ForEachTypeInDomain(type =>
+                {
                     if (type.FullName != null && !__dictName2Type.ContainsKey(type.FullName))
                         __dictName2Type.Add(type.FullName, type);
                 });
@@ -76,12 +76,30 @@ namespace Ant0nRocket.Lib.Std20.Reflection
             var result = new List<Type>();
             var t = typeof(T);
 
-            ForEachTypeInDomain(type => {
+            ForEachTypeInDomain(type =>
+            {
                 if (t.Equals(type) == false && t.IsAssignableFrom(type))
                     result.Add(type);
             });
 
             return result;
+        }
+
+        /// <summary>
+        /// Retreives <typeparamref name="T"/> from <paramref name="fromType"/>,
+        /// or returnes null if nothing found or any exection thrown
+        /// </summary>
+        public static T? GetAttribute<T>(Type fromType) where T : Attribute
+        {
+            try
+            {
+                return (T)Attribute.GetCustomAttribute(fromType, typeof(T));
+            }
+            catch (Exception ex)
+            {
+                SignalBus.Send(ex);
+                return default;
+            }
         }
 
         //-------------- PRIVATE FUNCTION -------------------------------------
@@ -143,7 +161,7 @@ namespace Ant0nRocket.Lib.Std20.Reflection
 
             return GetTypesThatImplements<T>();
 
-            
+
 
             //var resultList = new List<Type>();
             //var assemblies = AppDomain

@@ -7,7 +7,7 @@
     <PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib.Std20</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Ant0nRocket</Copyright>
-    <Version>3.0.0-preview1</Version>
+    <Version>6.0.0</Version>
     <PackageLicenseExpression>Beerware</PackageLicenseExpression>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Nullable>enable</Nullable>

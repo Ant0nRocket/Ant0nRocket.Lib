@@ -1,9 +1,8 @@
 using Ant0nRocket.Lib.Cryptography;
 using Ant0nRocket.Lib.Extensions;
-using Ant0nRocket.Lib.Tests;
 using NUnit.Framework;
 
-namespace Ant0nRocket.Lib.Std20.Tests
+namespace Ant0nRocket.Lib.Tests
 {
     public class CryptographyTests : _TestsBase
     {

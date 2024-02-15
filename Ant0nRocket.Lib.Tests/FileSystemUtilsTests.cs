@@ -2,7 +2,6 @@
 using Ant0nRocket.Lib.Extensions;
 using Ant0nRocket.Lib.IO;
 using Ant0nRocket.Lib.Reflection;
-using Ant0nRocket.Lib.Tests;
 using Ant0nRocket.Lib.Tests.MockClasses;
 using NUnit.Framework;
 
@@ -12,7 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-namespace Ant0nRocket.Lib.Std20.Tests
+namespace Ant0nRocket.Lib.Tests
 {
     public class FileSystemUtilsTests : _TestsBase
     {

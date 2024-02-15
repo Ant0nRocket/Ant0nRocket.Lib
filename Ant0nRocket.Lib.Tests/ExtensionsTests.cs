@@ -1,6 +1,5 @@
 ﻿using Ant0nRocket.Lib.Extensions;
 using Ant0nRocket.Lib.Tests.MockClasses;
-using Ant0nRocket.Lib.Tests;
 using Ant0nRocket.Lib.Tests.Enums;
 using NUnit.Framework;
 
@@ -8,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ant0nRocket.Lib.Std20.Tests
+namespace Ant0nRocket.Lib.Tests
 {
     public class ExtensionsTests : _TestsBase
     {

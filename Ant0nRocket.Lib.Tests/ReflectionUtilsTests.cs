@@ -1,5 +1,4 @@
 ﻿using Ant0nRocket.Lib.Reflection;
-using Ant0nRocket.Lib.Tests;
 using Ant0nRocket.Lib.Tests.MockAttributes;
 using Ant0nRocket.Lib.Tests.MockClasses;
 using Ant0nRocket.Lib.Tests.MockInterfaces;
@@ -8,7 +7,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 
-namespace Ant0nRocket.Lib.Std20.Tests
+namespace Ant0nRocket.Lib.Tests
 {
     internal class ReflectionUtilsTests : _TestsBase
     {
@@ -33,7 +32,7 @@ namespace Ant0nRocket.Lib.Std20.Tests
 
             Assert.That(testInstance is not null);
             Assert.That(testInstance?.SomeInt == 10);
-            
+
             TestDelegate exceptionAction = () => ReflectionUtils.GetClassesThatImplementsInterface<BasicClass>();
             Assert.Throws<ArgumentException>(exceptionAction);
         }

@@ -31,6 +31,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
             var logMessage =
                     $"{logEntity.DateTimeLocal:yyyy-MM-dd HH:mm:ss}|" +
                     $"{logEntity.LogLevel.ToString().ToUpper()}|" +
+                    $"{logEntity.ThreadId}|" +
                     $"{logEntity.Message}";
             var bytes = Encoding.UTF8.GetBytes(logMessage);
 

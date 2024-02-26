@@ -86,6 +86,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
                 var logMessage =
                     $"{logEntity.DateTimeLocal:yyyy-MM-dd HH:mm:ss}|" +
                     $"{logEntity.LogLevel.ToString().ToUpper()}|" +
+                    $"{logEntity.ThreadId}|" +
                     $"{logEntity.Message}";
 
                 __logWriters[logDayNumber].WriteLine(logMessage);

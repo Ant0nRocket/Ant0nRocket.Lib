@@ -10,12 +10,12 @@ namespace Ant0nRocket.Lib.Logging
         /// <summary>
         /// Contains a message to log (string.Empty by default)
         /// </summary>
-        public string Message { get; set; } = string.Empty;
+        public string Message { get; init; } = string.Empty;
 
         /// <summary>
         /// Level on which current message will appear
         /// </summary>
-        public LogLevel LogLevel { get; set; } = LogLevel.All;
+        public LogLevel LogLevel { get; init; } = LogLevel.All;
 
         /// <summary>
         /// Date and time (UTC) when this message were created
@@ -28,13 +28,29 @@ namespace Ant0nRocket.Lib.Logging
         public DateTime DateTimeLocal => DateTimeUtc.ToLocalTime();
 
         /// <summary>
+        /// Allowes user to set some integer tag information to, say,
+        /// filter log messages in <see cref="ILogEntityHandler"/>.
+        /// User must control tag uniquity itself.
+        /// </summary>
+        public int Tag { get; set; }
+
+        /// <summary>
+        /// Id of a thread in which the entity created.
+        /// </summary>
+        public int ThreadId { get; init; }
+
+#if DEBUG
+
+        /// <summary>
         /// Name of the sender class
         /// </summary>
-        public string SenderClassName { get; set; } = string.Empty;
+        public string? SenderClassName { get; init; } = default;
 
         /// <summary>
         /// Name of of method that send current entity
         /// </summary>
-        public string SenderMethodName { get; set; } = string.Empty;
+        public string? SenderMethodName { get; init; } = default;
+
+#endif
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
 using Ant0nRocket.Lib.Extensions;
 
 namespace Ant0nRocket.Lib.Logging
@@ -21,12 +22,11 @@ namespace Ant0nRocket.Lib.Logging
         private static LogLevel __logLevel = LogLevel.All;
 
         // Collection of ILogEntityHandlers.
-        private static readonly List<ILogEntityHandler> __logEntityHandlers = new();
+        private static readonly List<ILogEntityHandler> __logEntityHandlers = [];
 
         /// <summary>
         /// Registers <see cref="ILogEntityHandler"/> as a handler of incoming messages
         /// </summary>
-        /// <exception cref="ArgumentNullException" />
         public static void RegisterLogEntityHandler(ILogEntityHandler logEntityHandler)
         {
             if (logEntityHandler != default)
@@ -40,7 +40,7 @@ namespace Ant0nRocket.Lib.Logging
         {
             foreach (var logHandler in __logEntityHandlers)
             {
-                logHandler.Handle(logEntity);
+                logHandler?.Handle(logEntity);
             }
         }
 
@@ -49,7 +49,15 @@ namespace Ant0nRocket.Lib.Logging
         /// don't want to specify any additional params except message.
         /// TRACE level message will be written.
         /// </summary>
-        public static void Log(string message) => Log(new LogEntity { Message = message });
+        public static void Log(string message)
+        {
+            var logEntity = new LogEntity
+            {
+                Message = message,
+                ThreadId = Environment.CurrentManagedThreadId,
+            };
+            Log(logEntity);
+        }
 
         #region OBSOLETE region
 

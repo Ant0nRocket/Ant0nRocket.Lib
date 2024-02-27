@@ -1,12 +1,14 @@
 ﻿using Ant0nRocket.Lib.Attributes;
 using Ant0nRocket.Lib.Logging;
 using Ant0nRocket.Lib.Reflection;
+using OneOf;
 using System;
 using System.IO;
 using System.Reflection;
 
 namespace Ant0nRocket.Lib.IO
 {
+    [Obsolete("Use IO.FileSystem class instead")]
     public static class FileSystemUtils
     {
         private static readonly Logger _logger = Logger.Create(nameof(FileSystemUtils));
@@ -45,6 +47,8 @@ namespace Ant0nRocket.Lib.IO
 
             return true;
         }
+
+        
 
         /// <summary>
         /// Returnes app-dependent special folder.

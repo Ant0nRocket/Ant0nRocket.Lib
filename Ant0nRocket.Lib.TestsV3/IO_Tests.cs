@@ -1,21 +1,39 @@
-using Ant0nRocket.Lib.Logging;
-using Ant0nRocket.Lib.StandardImplimentations.Logging;
+using Ant0nRocket.Lib.IO.FileSystem;
+using OneOf.Types;
+using System.Runtime.Versioning;
 
 namespace Ant0nRocket.Lib.TestsV6
 {
-    public class Tests
+    public class IO_Tests
     {
         [Test]
-        public void T001_RegisterLogEntityHandler()
+        public void T001_FileSystem_TouchDirectory_Null()
         {
-            Logger.RegisterLogEntityHandler(new FileLogEntityHandler(logDirectory: "Logs"));
-            Logger.RegisterLogEntityHandler(new UdpLogEntityHandler("127.0.0.1", 49000));
+            var t = FileSystem.TouchDirectory(null);
+            Assert.That(t.Value is Error<string>);
         }
 
         [Test]
-        public void T002_LogSomething()
+        public void T002_FileSystem_TouchDirectory_InvalidSymbol()
         {
-            Logger.Log("Something");
+            var t = FileSystem.TouchDirectory(@"|/../.."); // '|' is forbidden
+            Assert.That(t.Value is Error<string>);
+        }
+
+        [Test]
+        [SupportedOSPlatform("windows")]
+        public void T003_FileSystem_TouchDirectory_AccessDenied()
+        {
+            // Èם גףאפדהו
+            var t = FileSystem.TouchDirectory("C:/Windows/_Dir");
+            Assert.That(t.Value is Error<string>);
+        }
+
+        [Test]
+        public void T004_FileSystem_TouchDirectory_Success()
+        {
+            var t = FileSystem.TouchDirectory("TestFolder");
+            Assert.That(t.Value is Success);
         }
     }
 }

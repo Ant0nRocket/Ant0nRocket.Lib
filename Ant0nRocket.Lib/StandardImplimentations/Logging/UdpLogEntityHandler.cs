@@ -1,4 +1,5 @@
-﻿using Ant0nRocket.Lib.Logging;
+﻿using Ant0nRocket.Lib.IO.SignalBus;
+using Ant0nRocket.Lib.Logging;
 using System;
 using System.Net.Sockets;
 using System.Text;
@@ -10,7 +11,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
     /// </summary>
     public class UdpLogEntityHandler : ILogEntityHandler
     {
-        private readonly UdpClient _udpClient = default;
+        private readonly UdpClient _udpClient;
 
         public UdpLogEntityHandler(string hostname, int port)
         {

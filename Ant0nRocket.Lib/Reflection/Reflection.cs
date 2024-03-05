@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Ant0nRocket.Lib.IO.SignalBus;
 
 namespace Ant0nRocket.Lib.Reflection
 {
@@ -8,35 +9,33 @@ namespace Ant0nRocket.Lib.Reflection
     /// </summary>
     public static class Reflection
     {
+        /// <summary>
+        /// Current class will send messages to <see cref="SignalBus"/> with
+        /// this channel specified.
+        /// </summary>
+        public const string SIGNAL_BUS_CHANNEL = nameof(Reflection);
+
+        static Reflection()
+        {
+            _appName =
+                Assembly.GetEntryAssembly()?.GetName()?.Name ??
+                Guid.NewGuid().ToString();
+            SignalBus.Send(_appName, SIGNAL_BUS_CHANNEL);
+        }
+
         private static string? _appName = default;
 
         /// <summary>
-        /// Allows you to set app name manually.
-        /// If you never set the app name - reflections will get it from Assembly
+        /// Application name that used across <see cref="Ant0nRocket.Lib"/>.
         /// </summary>
-        public static bool SetAppName(string? appName)
+        public static string? AppName
         {
-            if (string.IsNullOrEmpty(appName) || string.IsNullOrWhiteSpace(appName))
-                return false;                
-            _appName = appName;
-            return true;
-        }
-
-        /// <summary>
-        /// If AppName were set by <see cref="SetAppName(string?)"/> then
-        /// the value will be returned.
-        /// If AppName is null then <see cref="Assembly.GetEntryAssembly"/> name
-        /// will be returned.
-        /// If nothing to return - new <see cref="Guid"/> (as string) returned.
-        /// </summary>
-        public static string GetAppName()
-        {
-            if (_appName != default)
-                return _appName;
-
-            return 
-                Assembly.GetEntryAssembly()?.GetName()?.Name ?? 
-                Guid.NewGuid().ToString();
+            get => _appName;
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && !string.IsNullOrWhiteSpace(value))
+                    _appName = value;
+            }
         }
     }
 }

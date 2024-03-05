@@ -1,9 +1,12 @@
-﻿using Ant0nRocket.Lib.Extensions;
-using OneOf;
-using OneOf.Types;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+
+using Ant0nRocket.Lib.Extensions;
+using Ant0nRocket.Lib.IO.FileSystem.ReturnTypes;
+
+using OneOf;
+using OneOf.Types;
 
 namespace Ant0nRocket.Lib.IO.FileSystem
 {
@@ -17,19 +20,14 @@ namespace Ant0nRocket.Lib.IO.FileSystem
         /// If there were no errors (or directory exists) - <see cref="Success"/> returned.
         /// Othervise - <see cref="Error{T}"/>, with error message inside. 
         /// </summary>
-        public static OneOf<Success, Error<string>> TouchDirectory(string? path)
+        public static OneOf<Success, TouchDirectoryInvalidPath, TouchDirectoryUnauthorized, Error<Exception>> TouchDirectory(string? path)
         {
-            const string ERR_EMPTY_PATH = "Provided path is empty";
-            const string ERR_INVALID_SYMBOLS = "Invalid symbols found in provided path";
-
             if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
-                return new Error<string>(ERR_EMPTY_PATH);
+                return new TouchDirectoryInvalidPath();
 
             for (var i = 0; i < path.Length; i++)
-            {
                 if (Path.GetInvalidPathChars().Contains(path[i]))
-                    return new Error<string>(ERR_INVALID_SYMBOLS);
-            }
+                    return new TouchDirectoryInvalidPath();
 
             try
             {
@@ -38,8 +36,11 @@ namespace Ant0nRocket.Lib.IO.FileSystem
             }
             catch (Exception ex)
             {
+                if (ex is UnauthorizedAccessException)
+                    return new TouchDirectoryUnauthorized();
+
                 var message = ex.GetFullExceptionErrorMessage();
-                return new Error<string>(message);
+                return new Error<Exception>(ex);
             }
         }
     }

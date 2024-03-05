@@ -1,4 +1,5 @@
-﻿using Ant0nRocket.Lib.Logging;
+﻿using Ant0nRocket.Lib.IO.SignalBus;
+using Ant0nRocket.Lib.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,7 +37,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
 
                 // Creating of a directory can cause exception.
                 // So only when directory created - subscribe.
-                SignalBus.OnSignalCode += SignalBus_OnSignalCode;
+                SignalBus.OnSignalBusCode += SignalBus_OnSignalBusCode;
             }
             catch (Exception ex)
             {
@@ -44,11 +45,11 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
             }
         }
 
-        private void SignalBus_OnSignalCode(SignalCode signalCode)
+        private void SignalBus_OnSignalBusCode(SignalBusCode signalCode)
         {
             // if we have SignalCode.ExitApp then go throgh all
             // loggers and close them
-            if (signalCode == SignalCode.ExitApp)
+            if (signalCode == SignalBusCode.ExitApp)
             {
                 foreach (var kvp in __logWriters)
                 {

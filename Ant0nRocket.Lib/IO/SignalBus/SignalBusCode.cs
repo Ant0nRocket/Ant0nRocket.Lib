@@ -1,9 +1,9 @@
-﻿namespace Ant0nRocket.Lib
+﻿namespace Ant0nRocket.Lib.IO.SignalBus
 {
     /// <summary>
-    /// Signal codes for <see cref="SignalBus.OnSignalCode"/>
+    /// Signal codes for <see cref="SignalBus.OnSignalBusCode"/>
     /// </summary>
-    public enum SignalCode
+    public enum SignalBusCode
     {
         /// <summary>
         /// Application (GUI part) can proceed system messages queue

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ant0nRocket.Lib.Tests", "An
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ant0nRocket.Lib.TestsV6", "Ant0nRocket.Lib.TestsV3\Ant0nRocket.Lib.TestsV6.csproj", "{7408116B-064E-4E06-A2D7-ED2E22A0EDB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ant0nRocket.Lib.Benchmarks", "Ant0nRocket.Lib.Benchmarks\Ant0nRocket.Lib.Benchmarks.csproj", "{7CD3B55F-4DA9-4866-935C-75A6AE184C94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ant0nRocket.Lib.Benchmarks", "Ant0nRocket.Lib.Benchmarks\Ant0nRocket.Lib.Benchmarks.csproj", "{7CD3B55F-4DA9-4866-935C-75A6AE184C94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

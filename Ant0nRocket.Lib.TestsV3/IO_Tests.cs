@@ -36,7 +36,7 @@ namespace Ant0nRocket.Lib.TestsV6
         {
             var testFolderName = "TestFolder";
             var t = FileSystem.TouchDirectory(testFolderName);
-            Assert.That(t.Value is Success);
+            Assert.That(t.Value is Success<string>);
             Directory.Delete(testFolderName);
         }
     }

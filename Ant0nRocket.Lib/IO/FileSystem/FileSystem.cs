@@ -2,9 +2,8 @@
 using System.IO;
 using System.Linq;
 
-using Ant0nRocket.Lib.Extensions;
 using Ant0nRocket.Lib.IO.FileSystem.ReturnTypes;
-
+using Ant0nRocket.Lib.Reflection;
 using OneOf;
 using OneOf.Types;
 
@@ -20,7 +19,7 @@ namespace Ant0nRocket.Lib.IO.FileSystem
         /// If there were no errors (or directory exists) - <see cref="Success"/> returned.
         /// Othervise - <see cref="Error{T}"/>, with error message inside. 
         /// </summary>
-        public static OneOf<Success, TouchDirectoryInvalidPath, TouchDirectoryUnauthorized, Error<Exception>> TouchDirectory(string? path)
+        public static OneOf<Success<string>, TouchDirectoryInvalidPath, TouchDirectoryUnauthorized, Error<Exception>> TouchDirectory(string? path)
         {
             if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
                 return new TouchDirectoryInvalidPath();
@@ -31,17 +30,29 @@ namespace Ant0nRocket.Lib.IO.FileSystem
 
             try
             {
-                _ = Directory.CreateDirectory(path);
-                return new Success();
+                var directoryInfo = Directory.CreateDirectory(path);
+                return new Success<string>(directoryInfo.FullName);
             }
             catch (Exception ex)
             {
                 if (ex is UnauthorizedAccessException)
                     return new TouchDirectoryUnauthorized();
-
-                var message = ex.GetFullExceptionErrorMessage();
                 return new Error<Exception>(ex);
             }
         }
+
+        /// <summary>
+        /// If app is in <see cref="Reflection.Reflection.IsPortableMode"/> then
+        /// current domain base directory will be returned.<br />
+        /// Othervise (if not portable) - '~/User/.AppName' returned.<br />
+        /// Pay attension, it is a period symbol before AppName.
+        /// </summary>
+        public static string GetAppDataPath()
+        {
+            var isPortableMode = Reflection.Reflection.IsPortableMode;
+
+            return "";
+        }
+
     }
 }

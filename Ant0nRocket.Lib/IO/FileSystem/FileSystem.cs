@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 
 using Ant0nRocket.Lib.IO.FileSystem.ReturnTypes;
-using Ant0nRocket.Lib.Reflection;
+using Reflection = Ant0nRocket.Lib.Reflection;
 using OneOf;
 using OneOf.Types;
 
@@ -42,14 +42,14 @@ namespace Ant0nRocket.Lib.IO.FileSystem
         }
 
         /// <summary>
-        /// If app is in <see cref="Reflection.Reflection.IsPortableMode"/> then
+        /// If app is in <see cref="Reflection.IsPortableMode"/> then
         /// current domain base directory will be returned.<br />
         /// Othervise (if not portable) - '~/User/.AppName' returned.<br />
         /// Pay attension, it is a period symbol before AppName.
         /// </summary>
         public static string GetAppDataPath()
         {
-            var isPortableMode = Reflection.Reflection.IsPortableMode;
+            var isPortableMode = Reflection.IsPortableMode;
 
             return "";
         }

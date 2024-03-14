@@ -1,4 +1,7 @@
-﻿namespace Ant0nRocket.Lib.Extensions
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace Ant0nRocket.Lib.Extensions
 {
     /// <summary>
     /// Extensions for strings
@@ -81,6 +84,39 @@
 
             // ... no space chars were found - return origin value
             return value;
+        }
+
+        private static byte[] ComputeStringHash(HashAlgorithm hashAlgorithm, Encoding? encoding, string? source)
+        {
+            var bytes = (encoding ?? Encoding.UTF8).GetBytes(source ?? string.Empty);
+            return hashAlgorithm.ComputeHash(bytes);            
+        }
+
+        /// <summary>
+        /// Calculates hash bytes (using SHA256 algorythm) of a <paramref name="source"/>.
+        /// </summary>
+        public static byte[] ComputeSHA256Hash(this string? source, Encoding? encoding = default)
+        {
+            using var hasher = SHA256.Create();
+            return ComputeStringHash(hasher, encoding, source);
+        }
+
+        /// <summary>
+        /// Calculates hash bytes (using SHA512 algorythm) of a <paramref name="source"/>.
+        /// </summary>
+        public static byte[] ComputeSHA512Hash(this string? source, Encoding? encoding = default)
+        {
+            using var hasher = SHA512.Create();
+            return ComputeStringHash(hasher, encoding, source);
+        }
+
+        /// <summary>
+        /// Calculates hash bytes (using MD5 algorythm) of a <paramref name="source"/>.
+        /// </summary>
+        public static byte[] ComputeMD5Hash(this string? source, Encoding? encoding = default)
+        {
+            using var hasher = MD5.Create();
+            return ComputeStringHash(hasher, encoding, source);
         }
     }
 }

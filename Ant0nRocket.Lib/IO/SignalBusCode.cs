@@ -1,4 +1,4 @@
-﻿namespace Ant0nRocket.Lib.IO.SignalBus
+﻿namespace Ant0nRocket.Lib.IO
 {
     /// <summary>
     /// Signal codes for <see cref="SignalBus.OnSignalBusCode"/>

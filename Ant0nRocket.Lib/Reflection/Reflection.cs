@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Ant0nRocket.Lib.IO.SignalBus;
+using Ant0nRocket.Lib.IO;
 
 namespace Ant0nRocket.Lib.Reflection
 {

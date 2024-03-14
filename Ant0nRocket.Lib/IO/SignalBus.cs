@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ant0nRocket.Lib.IO.SignalBus
+namespace Ant0nRocket.Lib.IO
 {
     /// <summary>
     /// Class that is used for sending signals between

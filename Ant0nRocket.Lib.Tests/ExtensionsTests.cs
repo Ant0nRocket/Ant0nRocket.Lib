@@ -86,6 +86,41 @@ namespace Ant0nRocket.Lib.Tests
         }
 
         [Test]
+        public void String_ComputeHashMD5()
+        {
+            Assert.AreEqual(
+                "0fd3dbec9730101bff92acc820befc34",
+                "Test string".ComputeMD5Hash().ToHexString());
+
+            Assert.AreEqual(
+                "d41d8cd98f00b204e9800998ecf8427e",
+                string.Empty.ComputeMD5Hash().ToHexString());
+
+            Assert.AreEqual(
+                "a5d9de4499c5c850c1c69695c7b5b88d",
+                "Салют!".ComputeMD5Hash().ToHexString());
+        }
+
+        [Test]
+        public void String_ComputeHashSHA256()
+        {
+            Assert.AreEqual(
+                "a3e49d843df13c2e2a7786f6ecd7e0d184f45d718d1ac1a8a63e570466e489dd",
+                "Test string".ComputeSHA256Hash().ToHexString());
+
+            Assert.AreEqual(
+                "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                string.Empty.ComputeSHA256Hash().ToHexString());
+
+            Assert.AreEqual(
+                "5229152262a70bb4e7882e3a442c1f91556be1d986a385053d557f3d8aa9a9da",
+                "Салют!".ComputeSHA256Hash().ToHexString());
+
+            // There is no need to check SHA-512 'cause the only difference in
+            // algorythm is a hasher implementation (both are system).
+        }
+
+        [Test]
         public void String_Left_And_Right()
         {
             var str = "Hello! My name is Anton!";
@@ -134,6 +169,5 @@ namespace Ant0nRocket.Lib.Tests
             sentance1 = "word";
             Assert.AreEqual("word", sentance1.GetFirstWord());
         }
-
     }
 }

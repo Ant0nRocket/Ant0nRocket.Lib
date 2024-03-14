@@ -7,12 +7,11 @@ using System.Reflection;
 
 namespace Ant0nRocket.Lib.IO
 {
+    /// <summary>
+    /// Collection of the file system utils
+    /// </summary>
     public static class FileSystemUtils
     {
-        private static readonly Logger _logger = Logger.Create(nameof(FileSystemUtils));
-
-
-
         /// <summary>
         /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
         /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
@@ -25,28 +24,23 @@ namespace Ant0nRocket.Lib.IO
         /// Creates a directory <paramref name="path"/> if it doesn't exists.<br />
         /// Make sure you didn't provide a full file path here :)
         /// </summary>
-        public static bool TouchDirectory(string path)
+        public static bool TouchDirectory(string? path)
         {
             if (string.IsNullOrWhiteSpace(path)) return false;
 
-            if (!Directory.Exists(path))
+            try
             {
-                try
-                {
-                    Directory.CreateDirectory(path);
-                    _logger.LogTrace($"Directory '{path}' wasn't exists. Created");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogException(ex, $"Unable to create directory '{path}': {ex.Message} ({ex.InnerException?.Message})");
-                    return false;
-                }
+                _ = Directory.CreateDirectory(path);
+                return true;
             }
-
-            return true;
+            catch (Exception ex)
+            {
+                SignalBus.Send(ex);
+                return false;
+            }
         }
 
-        
+
 
         /// <summary>
         /// Returnes app-dependent special folder.
@@ -134,7 +128,7 @@ namespace Ant0nRocket.Lib.IO
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogException(ex, $"Error while reading '{filePath}' into '{typeof(T).Name}'");
+                    //_logger.LogException(ex, $"Error while reading '{filePath}' into '{typeof(T).Name}'");
                 }
             }
 
@@ -186,7 +180,7 @@ namespace Ant0nRocket.Lib.IO
             }
             catch (Exception ex)
             {
-                _logger.LogException(ex);
+                //_logger.LogException(ex);
                 return false;
             }
         }
@@ -224,7 +218,7 @@ namespace Ant0nRocket.Lib.IO
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogException(ex);
+                    //_logger.LogException(ex);
                     return false;
                 }
             }
@@ -238,7 +232,7 @@ namespace Ant0nRocket.Lib.IO
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogException(ex);
+                    //_logger.LogException(ex);
                     return false;
                 }
             }

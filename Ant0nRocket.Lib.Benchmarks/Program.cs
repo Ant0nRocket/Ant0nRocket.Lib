@@ -6,7 +6,7 @@ namespace Ant0nRocket.Lib.Benchmarks
     {
         static void Main()
         {
-            BenchmarkRunner.Run<IO_Benchmarks>();
+            BenchmarkRunner.Run<Extensions_Benchmarks>();
         }
     }
 }

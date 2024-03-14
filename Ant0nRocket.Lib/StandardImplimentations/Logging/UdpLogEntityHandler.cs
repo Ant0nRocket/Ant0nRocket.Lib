@@ -1,4 +1,4 @@
-﻿using Ant0nRocket.Lib.IO.SignalBus;
+﻿using Ant0nRocket.Lib.IO;
 using Ant0nRocket.Lib.Logging;
 using System;
 using System.Net.Sockets;

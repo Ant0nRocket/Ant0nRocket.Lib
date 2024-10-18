@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>latest</LangVersion>
     <Description>Helpfull code: hasing, file-system utils, etc.</Description>
     <PackageProjectUrl>https://github.com/Ant0nRocket/Ant0nRocket.Lib</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Ant0nRocket</Copyright>
-    <Version>6.0.2</Version>
+    <Version>8.1.0</Version>
     <PackageLicenseExpression>Beerware</PackageLicenseExpression>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Nullable>enable</Nullable>

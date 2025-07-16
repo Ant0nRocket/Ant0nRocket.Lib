@@ -11,11 +11,6 @@ namespace Ant0nRocket.Lib.Data
     /// </summary>
     public class SqlDatabaseAdapter<T> : ISqlDatabaseAdapter, IDisposable where T : IDbConnection
     {
-        /// <summary>
-        /// Logger.
-        /// </summary>
-        protected Logger _logger = Logger.Create(nameof(SqlDatabaseAdapter<T>));
-
         private T? _connection;
 
         /// <inheritdoc />
@@ -30,18 +25,18 @@ namespace Ant0nRocket.Lib.Data
             ConnectionString = connectionString;
             _connection = Activator.CreateInstance<T>();
 
-            _logger.LogTrace(connectionString);
+            Logger.LogTrace(connectionString);
             _connection.ConnectionString = connectionString;
 
             try
             {
                 _connection.Open();
-                _logger.LogInformation($"Connection '{typeof(T).Name}' opened");
+                Logger.LogInformation($"Connection '{typeof(T).Name}' opened");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogException(ex);
+                Logger.LogException(ex);
                 return false;
             }
         }
@@ -51,7 +46,7 @@ namespace Ant0nRocket.Lib.Data
         {
             if (_connection == null) return;
             _connection.Close();
-            _logger.LogInformation($"Connection '{typeof(T).Name}' closed");
+            Logger.LogInformation($"Connection '{typeof(T).Name}' closed");
         }
 
         /// <inheritdoc />
@@ -71,12 +66,12 @@ namespace Ant0nRocket.Lib.Data
                     rowsAffected += command.ExecuteNonQuery();
 
 #if DEBUG 
-                    _logger.LogDebug($"OK - \n{sqlParamMapper.AsJson(pretty: true)}");
+                    Logger.LogDebug($"OK - \n{sqlParamMapper.AsJson(pretty: true)}");
 #endif
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogException(ex);
+                    Logger.LogException(ex);
                     transaction.Rollback();
                     return 0;
                 }
@@ -89,7 +84,7 @@ namespace Ant0nRocket.Lib.Data
             }
             catch (Exception ex)
             {
-                _logger.LogException(ex);
+                Logger.LogException(ex);
                 return 0;
             }
         }
@@ -112,7 +107,7 @@ namespace Ant0nRocket.Lib.Data
             }
             catch (Exception ex)
             {
-                _logger.LogException(ex);
+                Logger.LogException(ex);
             }
         }
 

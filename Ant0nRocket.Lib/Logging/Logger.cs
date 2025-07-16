@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 using Ant0nRocket.Lib.Extensions;
@@ -8,7 +10,7 @@ namespace Ant0nRocket.Lib.Logging
 {
     /// <summary>
     /// The main idea of this logging class is to provide some basic logging
-    /// functionality for all classes inside this library (and only for them if required).<br />
+    /// functionality for all classes inside this library.<br />
     /// Initialy there is no writing of files, or sending via network, etc.<br />
     /// It's just a mock for logging. But you can subscribe to events of Logger class
     /// and write as much logs in as many places as you need.<br />
@@ -16,184 +18,133 @@ namespace Ant0nRocket.Lib.Logging
     /// There is not problem to subscribe to events and send data inside those loggers.<br />
     /// Logger levels are match standards.
     /// </summary>
-    public class Logger
+    public static class Logger
     {
-        // Current logger level. By default all levels will be passed.
-        private static LogLevel __logLevel = LogLevel.All;
-
-        // Collection of ILogEntityHandlers.
-        private static readonly List<ILogEntityHandler> __logEntityHandlers = [];
-
-        /// <summary>
-        /// Registers <see cref="ILogEntityHandler"/> as a handler of incoming messages
-        /// </summary>
-        public static void RegisterLogEntityHandler(ILogEntityHandler logEntityHandler)
+        public static void LogTrace(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            if (logEntityHandler != default)
-                __logEntityHandlers.Add(logEntityHandler);
+            Log(message, LogLevel.Trace, senderClassName, senderMethodName);
         }
 
-        /// <summary>
-        /// Log specified <paramref name="logEntity"/>
-        /// </summary>
-        public static void Log(LogEntity logEntity)
+        public static void LogDebug(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            foreach (var logHandler in __logEntityHandlers)
-            {
-                logHandler?.Handle(logEntity);
-            }
+            var callerName = GetCallerClassName();
+            Log(message, LogLevel.Debug, senderClassName, senderMethodName);
         }
 
-        /// <summary>
-        /// Shorthand for <see cref="Log(LogEntity)"/> useful when you
-        /// don't want to specify any additional params except message.
-        /// TRACE level message will be written.
-        /// </summary>
-        public static void Log(string message)
+        public static void LogInformation(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            var logEntity = new LogEntity
-            {
-                Message = message,
-                ThreadId = Environment.CurrentManagedThreadId,
-            };
-            Log(logEntity);
+            Log(message, LogLevel.Info, senderClassName, senderMethodName);
         }
 
-        #region OBSOLETE region
-
-        private readonly string ownerClassName;
-
-        [Obsolete]
-        public Logger()
+        public static void LogWarning(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            ownerClassName = nameof(Logger);
+            Log(message, LogLevel.Warn, senderClassName, senderMethodName);
         }
 
-        [Obsolete]
-        public Logger(string ownerClassName)
+        public static void LogError(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            this.ownerClassName = ownerClassName;
+            Log(message, LogLevel.Error, senderClassName, senderMethodName);
         }
 
-        [Obsolete]
-        public void LogTrace(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
+        public static void LogException(Exception ex, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            Log(message, LogLevel.Trace, ownerClassName, senderMethodName, sender);
+            var message = $"EXCEPTION: {ex.GetFullExceptionErrorMessage()}";
+            LogError(message, senderClassName, senderMethodName);
         }
 
-        [Obsolete]
-        public void LogDebug(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
+        public static void LogFatal(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            Log(message, LogLevel.Debug, ownerClassName, senderMethodName, sender);
+            Log(message, LogLevel.Fatal, senderClassName, senderMethodName);
         }
 
-        [Obsolete]
-        public void LogInformation(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
+        public static void LogObject(object obj, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
-            Log(message, LogLevel.Info, ownerClassName, senderMethodName, sender);
-        }
-
-        [Obsolete]
-        public void LogWarning(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
-        {
-            Log(message, LogLevel.Warn, ownerClassName, senderMethodName, sender);
-        }
-
-        [Obsolete]
-        public void LogError(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
-        {
-            Log(message, LogLevel.Error, ownerClassName, senderMethodName, sender);
-        }
-
-        [Obsolete]
-        public void LogException(Exception ex, string prefix = default, object sender = default, [CallerMemberName] string senderMethodName = default)
-        {
-            const string STD_PREFIX = "Exception";
-            var innerExceptionText = ex.InnerException == default ? string.Empty : $" (inner ex.: {ex.InnerException.Message}";
-            var message = $"{prefix ?? STD_PREFIX}: {ex.Message}{innerExceptionText}";
-            LogError(message, sender, senderMethodName);
-        }
-
-        [Obsolete]
-        public void LogFatal(string message, object sender = default, [CallerMemberName] string senderMethodName = default)
-        {
-            Log(message, LogLevel.Fatal, ownerClassName, senderMethodName, sender);
-        }
-
-        [Obsolete]
-        public void LogObject(object obj, object sender = default, [CallerMemberName] string senderMethodName = default)
-        {
-            Log($"{obj.GetType().Name}:\n{obj.AsJson(pretty: true)}", LogLevel.Debug, ownerClassName, senderMethodName, sender);
+            Log($"{obj.GetType().Name}:\n{obj.AsJson(pretty: true)}", LogLevel.Debug, senderClassName, senderMethodName);
         }
 
         #region EntityFramework
 
         private static bool isEntityFrameworkLoggingEnabled = true;
 
-        [Obsolete]
         public static void EnableEntityFrameworkLogging() => isEntityFrameworkLoggingEnabled = true;
 
-        [Obsolete]
         public static void DisableEntityFrameworkLoggins() => isEntityFrameworkLoggingEnabled = false;
 
-        [Obsolete]
-        public void LogEF(string value)
+        public static void LogEF(string value)
         {
             if (isEntityFrameworkLoggingEnabled)
-                Log(value, LogLevel.Trace, GetType().ToString(), null, this);
+                Log(value, LogLevel.Trace);
         }
 
         #endregion
 
-        private static LogLevel currentLoggerLevel = LogLevel.Trace;
 
-        private static readonly Dictionary<string, Logger> knownLoggers = new();
+        /// <summary>
+        /// 
+        /// </summary>
+        public static event Action<LogEntity> OnLog;
 
-        private static Logger RegisterLogger(string ownerClassName = default)
-        {
-            if (ownerClassName == default)
-                ownerClassName = nameof(Logger);
+        /// <summary>
+        /// Shared (static) logger level. If you create an instance of a logger
+        /// you will have your own level.
+        /// </summary>
+        private static LogLevel __currentLoggerLevel = LogLevel.All;
 
-            if (knownLoggers.ContainsKey(ownerClassName))
-                return knownLoggers[ownerClassName];
-            else
-                knownLoggers.Add(ownerClassName, new(ownerClassName));
-
-            return RegisterLogger(ownerClassName);
-        }
-
-        [Obsolete]
-        public static Logger Create() => RegisterLogger();
-
-        [Obsolete]
-        public static Logger Create<T>() => RegisterLogger($"{typeof(T)}");
-
-        [Obsolete]
-        public static Logger Create(string ownerClassName) => RegisterLogger(ownerClassName);
-
-        [Obsolete]
-        public static event EventHandler<(DateTime Date, string Message, LogLevel Level, string SenderClassName, string SenderMethodName)> OnLog;
-
-        [Obsolete]
+        /// <summary>
+        /// Set enabled or disabled
+        /// </summary>
         public static bool LogToBasicLogWritter { get; set; } = false;
 
-        [Obsolete]
-        public static void Log(string message, LogLevel level = LogLevel.Trace, string senderClassName = default, [CallerMemberName] string senderMethodName = default, object senderInstance = default)
+        /// <summary>
+        /// There are tow ways of dynamically calculate caller class name:
+        /// (1) Using a StackFrame at runtime. Very presice method but very slow.
+        /// (2) Using a file name of a caller. Could be inaccurate if file have two or more classes.
+        /// By default a caller filename used.
+        /// </summary>
+        public static bool UseCallerFilePath { get; set; } = true;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="logLevel"></param>
+        /// <param name="senderMethodName"></param>
+        /// <param name="senderClassName"></param>
+        public static void Log(string message, LogLevel logLevel = LogLevel.All, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string? senderMethodName = default)
         {
-            if ((int)level < (int)currentLoggerLevel) return;
+            if (logLevel < __currentLoggerLevel) return; //nothing to log, level limit
 
-            var dateTimeOfMessage = DateTime.Now;
+            var dateLogEntityCreated = DateTime.UtcNow;
 
-            OnLog?.Invoke(senderInstance, (dateTimeOfMessage, message, level, senderClassName, senderMethodName));
+            senderClassName = UseCallerFilePath ? Path.GetFileNameWithoutExtension(senderClassName) : GetCallerClassName();
+
+            if (OnLog != default)
+            {
+                var logEntity = new LogEntity
+                {
+                    Message = message,
+                    DateTimeUtc = dateLogEntityCreated,
+                    LogLevel = logLevel,
+                    SenderMethodName = senderMethodName,
+                    SenderClassName = senderClassName
+                };
+
+                OnLog(logEntity);
+            }
+
 
             if (LogToBasicLogWritter)
-                BasicLogWritter.WriteToLog(dateTimeOfMessage, message, level, senderClassName, senderMethodName);
+                BasicLogWritter.WriteToLog(dateLogEntityCreated, message, logLevel, senderClassName, senderMethodName);
 
         }
 
-        [Obsolete]
-        public static void SetLogLevel(LogLevel level) => currentLoggerLevel = level;
+        private static string GetCallerClassName()
+        {
+            var stackTrace = new StackTrace(skipFrames: 3);
+            var frame = stackTrace.GetFrame(0);
 
-        #endregion
+            return frame?.GetMethod()?.DeclaringType?.Name ?? "UnknownClass";
+        }
+
     }
 }

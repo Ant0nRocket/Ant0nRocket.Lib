@@ -9,7 +9,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
     /// <summary>
     /// Class will perform UDP translation of a log messages
     /// </summary>
-    public class UdpLogEntityHandler : ILogEntityHandler
+    public class UdpLogEntityHandler 
     {
         private readonly UdpClient _udpClient;
 

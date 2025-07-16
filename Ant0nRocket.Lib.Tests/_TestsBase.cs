@@ -14,6 +14,10 @@ namespace Ant0nRocket.Lib.Tests
                 Ant0nRocketLibConfig.RegisterJsonSerializer(new JsonSerializer());
                 BasicLogWritter.LogFileNamePrefix = "Ant0nRocket.Lib.Tests_";
                 Logger.LogToBasicLogWritter = true;
+                Logger.UseCallerFilePath = false;
+
+                Logger.LogDebug("fucc you!");
+
                 _isInitilized = true;
             }
         }

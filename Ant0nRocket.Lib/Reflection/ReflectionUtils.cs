@@ -125,8 +125,6 @@ namespace Ant0nRocket.Lib.Reflection
 
         #region OBSOLETE code
 
-        private static readonly Logger _logger = Logger.Create(nameof(ReflectionUtils));
-
         //private static string? _appName = default;
 
         /// <summary>

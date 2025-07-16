@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Ant0nRocket.Lib.Logging
 {
@@ -20,7 +21,7 @@ namespace Ant0nRocket.Lib.Logging
         /// <summary>
         /// Date and time (UTC) when this message were created
         /// </summary>
-        public DateTime DateTimeUtc { get; } = DateTime.UtcNow;
+        public DateTime DateTimeUtc { get; init; } = DateTime.UtcNow;
 
         /// <summary>
         /// Date and time (local) when this message were created
@@ -29,15 +30,15 @@ namespace Ant0nRocket.Lib.Logging
 
         /// <summary>
         /// Allowes user to set some integer tag information to, say,
-        /// filter log messages in <see cref="ILogEntityHandler"/>.
-        /// User must control tag uniquity itself.
+        /// filter log messages.
+        /// User must control tag uniquity yourself.
         /// </summary>
-        public int Tag { get; set; }
+        public int Tag { get; init; }
 
         /// <summary>
         /// Id of a thread in which the entity created.
         /// </summary>
-        public int ThreadId { get; init; }
+        public int ThreadId { get; } = Environment.CurrentManagedThreadId; 
 
 #if DEBUG
 

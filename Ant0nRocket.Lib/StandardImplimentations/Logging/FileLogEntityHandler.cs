@@ -10,7 +10,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
     /// <summary>
     /// Simple file logger
     /// </summary>
-    public class FileLogEntityHandler : ILogEntityHandler
+    public class FileLogEntityHandler 
     {
         private const string DEFAULT_LOG_FILE_EXTENSION = ".log";
 

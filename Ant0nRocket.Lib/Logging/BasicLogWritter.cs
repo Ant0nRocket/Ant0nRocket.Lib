@@ -4,7 +4,6 @@ using System.Text;
 
 namespace Ant0nRocket.Lib.Logging
 {
-    [Obsolete]
     public static class BasicLogWritter
     {
         private static string logDirectory = "Logs";
@@ -28,12 +27,10 @@ namespace Ant0nRocket.Lib.Logging
 
         public static string CurrentFileName { get; private set; }
 
-        public static event EventHandler<BasicLogWritterEventArgs> OnLogMessageWritten;
-
         private static FileStream logStream;
         private static StreamWriter logStreamWriter;
 
-        public static void WriteToLog(DateTime date, string message, LogLevel level, string senderClassName, string senderMethodName)
+        public static void WriteToLog(DateTime date, string message, LogLevel level, string? senderClassName, string? senderMethodName)
         {
             if (!Directory.Exists(LogDirectory))
                 Directory.CreateDirectory(LogDirectory); // yeahhh, I know, could throw an exception
@@ -54,18 +51,6 @@ namespace Ant0nRocket.Lib.Logging
             var logMessage = $"{date:yyyy-MM-ddTHH:mm:ss:fff}|{level.ToString().ToUpper()}|" +
                 $"{senderClassName}.{senderMethodName}|{message}";
             logStreamWriter.WriteLine(logMessage);
-
-            if (OnLogMessageWritten != null)
-            {
-                var args = new BasicLogWritterEventArgs
-                {
-                    LogFileName = CurrentFileName,
-                    LogFileStream = logStream,
-                    LogMessage = logMessage
-                };
-
-                OnLogMessageWritten(null, args);
-            }
         }
     }
 }

@@ -2,6 +2,9 @@
 
 namespace Ant0nRocket.Lib.Extensions
 {
+    /// <summary>
+    /// Extensions for <see cref="DateTime"/>
+    /// </summary>
     public static class DateTimeExtension
     {
         /// <summary>

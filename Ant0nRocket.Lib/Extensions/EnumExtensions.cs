@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace Ant0nRocket.Lib.Extensions
 {
+    /// <summary>
+    /// Extensions for srtructs
+    /// </summary>
     public static class EnumExtensions
     {
         /// <summary>

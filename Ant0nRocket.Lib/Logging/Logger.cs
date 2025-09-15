@@ -18,8 +18,13 @@ namespace Ant0nRocket.Lib.Logging
     /// There is not problem to subscribe to events and send data inside those loggers.<br />
     /// Logger levels are match standards.
     /// </summary>
-    public static class Logger
+    public class Logger
     {
+        public Logger(string ownerClasName)
+        {
+
+        }
+
         public static void LogTrace(string message, [CallerFilePath] string? senderClassName = default, [CallerMemberName] string senderMethodName = default)
         {
             Log(message, LogLevel.Trace, senderClassName, senderMethodName);
@@ -123,7 +128,7 @@ namespace Ant0nRocket.Lib.Logging
                 var logEntity = new LogEntity
                 {
                     Message = message,
-                    DateTimeUtc = dateLogEntityCreated,
+                    //DateTimeUtc = dateLogEntityCreated,
                     LogLevel = logLevel,
                     SenderMethodName = senderMethodName,
                     SenderClassName = senderClassName

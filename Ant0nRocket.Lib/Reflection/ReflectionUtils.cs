@@ -1,9 +1,9 @@
-﻿using Ant0nRocket.Lib.IO;
-using Ant0nRocket.Lib.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
+using Ant0nRocket.Lib.Logging;
 
 namespace Ant0nRocket.Lib.Reflection
 {
@@ -93,11 +93,11 @@ namespace Ant0nRocket.Lib.Reflection
         {
             try
             {
-                return (T)Attribute.GetCustomAttribute(fromType, typeof(T));
+                return (T?)Attribute.GetCustomAttribute(fromType, typeof(T));
             }
             catch (Exception ex)
             {
-                SignalBus.Send(ex);
+                Logger.LogException(ex);
                 return default;
             }
         }

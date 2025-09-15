@@ -37,24 +37,10 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
 
                 // Creating of a directory can cause exception.
                 // So only when directory created - subscribe.
-                SignalBus.OnSignalBusCode += SignalBus_OnSignalBusCode;
             }
             catch (Exception ex)
             {
-                SignalBus.Send(ex);
-            }
-        }
-
-        private void SignalBus_OnSignalBusCode(SignalBusCode signalCode)
-        {
-            // if we have SignalCode.ExitApp then go throgh all
-            // loggers and close them
-            if (signalCode == SignalBusCode.ExitApp)
-            {
-                foreach (var kvp in __logWriters)
-                {
-                    kvp.Value.Close();
-                }
+                Logger.LogException(ex);
             }
         }
 
@@ -77,7 +63,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
                 }
                 catch (Exception ex)
                 {
-                    SignalBus.Send(ex);
+                    Logger.LogException(ex);
                     return;
                 }
             }

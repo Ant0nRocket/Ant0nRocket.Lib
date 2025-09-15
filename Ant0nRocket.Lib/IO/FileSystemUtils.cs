@@ -35,7 +35,7 @@ namespace Ant0nRocket.Lib.IO
             }
             catch (Exception ex)
             {
-                SignalBus.Send(ex);
+                Logger.LogException(ex);
                 return false;
             }
         }

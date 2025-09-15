@@ -21,7 +21,7 @@ namespace Ant0nRocket.Lib.StandardImplimentations.Logging
             }
             catch (Exception ex)
             {
-                SignalBus.Send(ex);
+                Logger.LogException(ex);
             }
         }
 

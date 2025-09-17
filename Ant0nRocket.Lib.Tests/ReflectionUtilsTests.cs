@@ -15,7 +15,7 @@ namespace Ant0nRocket.Lib.Tests
         public void T001_FindTypeAccrossAppDomain()
         {
             var typeName = typeof(BasicClass).FullName;
-            var type = ReflectionUtils.FindTypeAccrossAppDomain(typeName!);
+            var type = ReflectionUtils.FindType(typeName!);
             Assert.IsNotNull(type);
         }
 
@@ -23,7 +23,7 @@ namespace Ant0nRocket.Lib.Tests
         public void T002_GetClassesThatImplementsInterface()
         {
             var classesThatImplementsIMockInterface = ReflectionUtils
-                .GetClassesThatImplementsInterface<IMockInterface>();
+                .GetTypesThatImplements<IMockInterface>();
 
             Assert.That(classesThatImplementsIMockInterface.Count() == 1);
 
@@ -32,9 +32,6 @@ namespace Ant0nRocket.Lib.Tests
 
             Assert.That(testInstance is not null);
             Assert.That(testInstance?.SomeInt == 10);
-
-            TestDelegate exceptionAction = () => ReflectionUtils.GetClassesThatImplementsInterface<BasicClass>();
-            Assert.Throws<ArgumentException>(exceptionAction);
         }
 
         [Test]

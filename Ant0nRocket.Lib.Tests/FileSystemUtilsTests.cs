@@ -1,6 +1,4 @@
-﻿using Ant0nRocket.Lib.Attributes;
-using Ant0nRocket.Lib.Extensions;
-using Ant0nRocket.Lib.IO;
+﻿using Ant0nRocket.Lib.IO;
 using Ant0nRocket.Lib.Reflection;
 using Ant0nRocket.Lib.Tests.MockClasses;
 using NUnit.Framework;
@@ -18,7 +16,7 @@ namespace Ant0nRocket.Lib.Tests
         [Test]
         public void T001_AppName()
         {
-            var appName = ReflectionUtils.AppName;
+            var appName = ReflectionUtils.ApplicationName;
             Assert.AreEqual(appName, "testhost");
         }
 
@@ -30,72 +28,6 @@ namespace Ant0nRocket.Lib.Tests
         }
 
         [Test]
-        public void T003_DefaultAppDataFolderPath()
-        {
-            var defaultAppDataFolder = FileSystemUtils.DefaultSpecialFolder;
-            Assert.AreEqual(Environment.SpecialFolder.LocalApplicationData, defaultAppDataFolder);
-        }
-
-        [Test]
-        public void T004_AppDataLocalPath()
-        {
-            var appDataLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var calculatedAppDataLocalPath = Path.GetDirectoryName(FileSystemUtils.GetAppDataLocalFolderPath()); // ".."
-            Assert.AreEqual(appDataLocalPath, calculatedAppDataLocalPath);
-        }
-
-        [Test]
-        public void T005_AppDataRoamingPath()
-        {
-            var appDataLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var calculatedAppDataLocalPath = Path.GetDirectoryName(FileSystemUtils.GetAppDataRoamingFolderPath()); // ".."
-            Assert.AreEqual(appDataLocalPath, calculatedAppDataLocalPath);
-        }
-
-        [Test]
-        public void T005_GetAppDataPathForTestsArePortable()
-        {
-            Ant0nRocketLibConfig.IsPortableMode = true;
-
-            const string FILENAME = "somefile.dat";
-            var rootPath = AppDomain.CurrentDomain.BaseDirectory;
-            rootPath = Path.Combine(rootPath, FILENAME);
-            var libResult = FileSystemUtils.GetDefaultAppDataFolderPathFor(fileName: FILENAME);
-
-            Assert.AreEqual(rootPath, libResult);
-        }
-
-        [Test]
-        public void T006_GetAppDataPathForTestsArePortableWithSubDirectory()
-        {
-            Ant0nRocketLibConfig.IsPortableMode = true;
-
-            const string FILENAME = "somefile.dat";
-            const string SUBDIRECTORY = "Data";
-
-            var rootPath = AppDomain.CurrentDomain.BaseDirectory;
-            rootPath = Path.Combine(rootPath, SUBDIRECTORY, FILENAME);
-            var libResult = FileSystemUtils.GetDefaultAppDataFolderPathFor(fileName: FILENAME, subDirectory: SUBDIRECTORY);
-
-            Assert.AreEqual(rootPath, libResult);
-        }
-
-        [Test]
-        public void T007_GetAppDataPathForTestsAreNotPortable()
-        {
-            Ant0nRocketLibConfig.IsPortableMode = false;
-
-            const string FILENAME = "somefile.dat";
-            var rootPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var assemblyName = Assembly.GetEntryAssembly()?.GetName()?.Name ?? string.Empty;
-            rootPath = Path.Combine(rootPath, assemblyName, FILENAME);
-
-            var libResult = FileSystemUtils.GetDefaultAppDataFolderPathFor(fileName: FILENAME);
-
-            Assert.AreEqual(rootPath, libResult);
-        }
-
-        [Test]
         public void T007_SetPortableToTrueForTests()
         {
             Ant0nRocketLibConfig.IsPortableMode = true;
@@ -104,8 +36,6 @@ namespace Ant0nRocket.Lib.Tests
         [Test]
         public void T008_ReadingClassFromFile()
         {
-            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(StoreClass));
-            Assert.IsNotNull(storeAttr);
             var filePath = FileSystemUtils.GetDefaultAppDataFolderPathFor(storeAttr!.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
             if (File.Exists(filePath)) File.Delete(filePath);
             File.WriteAllText(filePath, "{\"TestString\":\"Hello world!\"}");

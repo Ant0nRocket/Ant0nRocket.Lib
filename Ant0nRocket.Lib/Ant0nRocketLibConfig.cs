@@ -1,4 +1,5 @@
-﻿using Ant0nRocket.Lib.Serialization;
+﻿using Ant0nRocket.Lib.Reflection;
+using Ant0nRocket.Lib.Serialization;
 using System;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,22 @@ namespace Ant0nRocket.Lib
     /// </summary>
     public class Ant0nRocketLibConfig
     {
+        #region Registering company name and app name
+
+        /// <summary>
+        /// Set company name
+        /// </summary>
+        /// <param name="companyName"></param>
+        public static void SetCompanyName(string companyName) => ReflectionUtils.CompanyName = companyName;
+
+        /// <summary>
+        /// Set application name
+        /// </summary>
+        /// <param name="applicationName"></param>
+        public static void SetApplicationName(string applicationName) => ReflectionUtils.ApplicationName = applicationName;
+
+        #endregion
+
         #region IsPortableMode
 
         private static bool? isPortableMode = null;
@@ -17,8 +34,7 @@ namespace Ant0nRocket.Lib
 
         /// <summary>
         /// Set this flag to true if you want that library "think" that
-        /// the application is in portable mode (for example, function
-        /// <see cref="IO.FileSystemUtils.TryReadFromFile{T}"/> depends on it).
+        /// the application is in portable mode.
         /// </summary>
         public static bool IsPortableMode
         {

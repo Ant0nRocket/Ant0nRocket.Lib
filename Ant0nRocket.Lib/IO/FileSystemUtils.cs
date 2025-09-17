@@ -1,24 +1,65 @@
-﻿using Ant0nRocket.Lib.Attributes;
+﻿using System;
+using System.IO;
+using System.Text.Json;
+
 using Ant0nRocket.Lib.Logging;
 using Ant0nRocket.Lib.Reflection;
-using System;
-using System.IO;
-using System.Reflection;
 
 namespace Ant0nRocket.Lib.IO
 {
     /// <summary>
-    /// Collection of the file system utils
+    /// Collection of the file system utils.
     /// </summary>
     public static class FileSystemUtils
     {
+        private const string SERIALIZED_FILES_EXT = ".json";
+
         /// <summary>
-        /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
-        /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
-        /// leads to <i>%APPDATA%/Local</i>.
+        /// Will generate a path with respect to <see cref="ReflectionUtils.CompanyName"/> and
+        /// <see cref="ReflectionUtils.ApplicationName"/>, so that result will be:<br />
+        /// [SpecialFolderPath] / [CompanyName] / [ApplicationName] / [SubFolder]<br /><br />
+        /// Also, if <paramref name="autoCreate"/> set to true then folder will be created
+        /// (if not exists).
         /// </summary>
-        public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } =
-            Environment.SpecialFolder.LocalApplicationData;
+        public static ReadOnlySpan<char> GetPath(Environment.SpecialFolder specialFolder, string? subfolder = default, bool autoCreate = true)
+        {
+            if (string.IsNullOrEmpty(ReflectionUtils.CompanyName))
+                throw new ApplicationException(nameof(ReflectionUtils.CompanyName));
+
+            if (string.IsNullOrEmpty(ReflectionUtils.ApplicationName))
+                throw new ApplicationException(nameof(ReflectionUtils.ApplicationName));
+
+            var specialFolderPath = Environment.GetFolderPath(specialFolder);
+            var path = Path.Combine(
+                specialFolderPath,
+                ReflectionUtils.CompanyName,
+                ReflectionUtils.ApplicationName,
+                subfolder ?? string.Empty);
+
+            if (autoCreate)
+                TouchDirectory(path);
+
+            return path.AsSpan();
+        }
+
+        /// <summary>
+        /// Shorthand for getting logs folder.
+        /// </summary>
+        public static ReadOnlySpan<char> GetPathForData(string subfolder = "Data", bool autoCreate = true) =>
+            GetPath(Environment.SpecialFolder.LocalApplicationData, subfolder, autoCreate);
+
+        /// <summary>
+        /// Shorthand for getting logs folder.
+        /// </summary>
+        public static ReadOnlySpan<char> GetPathForLogs(string subfolder = "Logs", bool autoCreate = true) =>
+            GetPath(Environment.SpecialFolder.LocalApplicationData, subfolder, autoCreate);
+
+        /// <summary>
+        /// Shorthand for getting logs folder.
+        /// </summary>
+        public static ReadOnlySpan<char> GetPathForConfig(string subfolder = "Config", bool autoCreate = true) =>
+            GetPath(Environment.SpecialFolder.ApplicationData, subfolder, autoCreate);
+
 
         /// <summary>
         /// Creates a directory <paramref name="path"/> if it doesn't exists.<br />
@@ -27,6 +68,8 @@ namespace Ant0nRocket.Lib.IO
         public static bool TouchDirectory(string? path)
         {
             if (string.IsNullOrWhiteSpace(path)) return false;
+
+            if (Directory.Exists(path)) return true;
 
             try
             {
@@ -40,147 +83,75 @@ namespace Ant0nRocket.Lib.IO
             }
         }
 
-
-
         /// <summary>
-        /// Returnes app-dependent special folder.
+        /// Reads file <typeparamref name="T"/> from config folder (see <see cref=" GetPathForConfig(string, bool)"/>).
         /// </summary>
-        private static string GetAppNameDependentSpecialFolderPath(Environment.SpecialFolder specialFolder)
+        public static T ReadConfigFile<T>() where T : class, new()
         {
-            ReflectionUtils.AppName ??= Assembly.GetEntryAssembly().GetName().Name;
-            var specialFolderPath = Environment.GetFolderPath(specialFolder);
-            return Path.Combine(specialFolderPath, ReflectionUtils.AppName);
-        }
-
-        /// <summary>
-        /// Returnes <i>%APPDATA%/Local/AppName</i> path.<br />
-        /// <b>N.B.! Use it only if you realy want MANUALLY work with this folder, 
-        /// othervide use <see cref="GetDefaultAppDataFolderPath"/></b>
-        /// </summary>
-        public static string GetAppDataLocalFolderPath() => GetAppNameDependentSpecialFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-        /// <summary>
-        /// Returnes <i>%APPDATA%/Roaming/AppName</i> path.<br />
-        /// <b>N.B.! Use it only if you realy want MANUALLY work with this folder, 
-        /// othervide use <see cref="GetDefaultAppDataFolderPath"/></b>
-        /// </summary>
-        public static string GetAppDataRoamingFolderPath() => GetAppNameDependentSpecialFolderPath(Environment.SpecialFolder.ApplicationData);
-
-        /// <summary>
-        /// Default app data folder path.<br />
-        /// You could change it by setting a new value to <see cref="DefaultSpecialFolder"/>.
-        /// </summary>
-        /// <returns></returns>
-        public static string GetDefaultAppDataFolderPath(Environment.SpecialFolder? specialFolder = null)
-        {
-            return Ant0nRocketLibConfig.IsPortableMode ?
-                AppDomain.CurrentDomain.BaseDirectory :
-                GetAppNameDependentSpecialFolderPath(specialFolder ?? DefaultSpecialFolder);
-        }
-
-        /// <summary>
-        /// Will return valid data path for specified <paramref name="fileName"/>.<br />
-        /// If <paramref name="subDirectory"/> specified - it will be added to data path.<br />
-        /// If <paramref name="specialFolder"/> is default (<see cref="Environment.SpecialFolder.Fonts"/>) then
-        /// <see cref="DefaultSpecialFolder"/> will be used.<br />
-        /// If <paramref name="autoTouchDirectory"/> is true - data directory will be auto-created (if not exists).<br />
-        /// <b>N.B.! If <see cref="IsPortableMode"/> then base app directory will be used. Don't forget to set <paramref name="subDirectory"/> in this case.</b>
-        /// </summary>
-        /// <returns></returns>
-        public static string GetDefaultAppDataFolderPathFor(string fileName, string? subDirectory = default, Environment.SpecialFolder? specialFolder = null, bool autoTouchDirectory = false)
-        {
-            var rootPath = GetDefaultAppDataFolderPath(specialFolder);
-
-            subDirectory ??= string.Empty;
-
-            var targetDirectory = Path.Combine(rootPath, subDirectory);
-
-            if (autoTouchDirectory)
-                TouchDirectory(targetDirectory);
-
-            return Path.Combine(targetDirectory, fileName);
-        }
-
-        /// <summary>
-        /// Tries read content of a <paramref name="filePath"/> and deserialize
-        /// it into T.<br />
-        /// <b>N.B.!</b> If something goes wrong - a new instance of T will be returned
-        /// </summary>
-        public static T? TryReadFromFile<T>(string? filePath = default, bool createInstanceOnError = true) where T : class, new()
-        {
-            // This could throw so better call it here, before try block
-            var jsonSerializer = Ant0nRocketLibConfig.GetJsonSerializer();
-
-            if (filePath == default)
+            static T DeserializeFromFile(string path)
             {
-                var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
-                filePath = GetDefaultAppDataFolderPathFor(storeAttr.FileName, storeAttr.DirectoryName);
-            }
-
-            T instance = default!;
-
-            if (File.Exists(filePath))
-            {
-                try
+                if (File.Exists(path))
                 {
-                    var fileContents = File.ReadAllText(filePath);
-                    instance = jsonSerializer.Deserialize<T>(fileContents, throwExceptions: true);
-                }
-                catch (Exception ex)
-                {
-                    //_logger.LogException(ex, $"Error while reading '{filePath}' into '{typeof(T).Name}'");
-                }
-            }
-
-            if (instance == default && createInstanceOnError)
-            {
-                instance = Activator.CreateInstance<T>();
-            }
-
-            return instance;
-        }
-
-        /// <summary>
-        /// Tries save serialized <paramref name="instance"/> into <paramref name="filePath"/>.
-        /// </summary>
-        public static bool TrySaveToFile<T>(T instance, string? filePath = default, bool? backupOldData = default)
-        {
-            // This could throw so better call it here, before try block
-            var jsonSerializer = Ant0nRocketLibConfig.GetJsonSerializer();
-
-            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ?? new();
-
-            backupOldData ??= storeAttr.BackupOldData; // if not provided - take from attribute
-
-            if (filePath == default)
-            {
-                if (string.IsNullOrEmpty(storeAttr.FileName) || string.IsNullOrWhiteSpace(storeAttr.FileName))
-                {
-                    throw new ApplicationException($"Neigther provide '{nameof(filePath)}' argument " +
-                        $"or correct '{nameof(StoreAttribute)}' with {nameof(StoreAttribute.FileName)} specified");
+                    try
+                    {
+                        var content = File.ReadAllText(path);
+                        var instance = JsonSerializer.Deserialize<T>(content);
+                        if (instance == default)
+                        {
+#if DEBUG
+                            Logger.LogDebug($"Deserialization of {typeof(T)} from file '{path}' failed. New returned.");
+#endif
+                            return new();
+                        }
+                        else
+                        {
+                            return instance;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogException(ex);
+                    }
                 }
 
-                filePath = GetDefaultAppDataFolderPathFor(
-                    storeAttr.FileName, storeAttr.DirectoryName, autoTouchDirectory: true);
+                return new();
             }
+
+            var type = typeof(T);
+            var fileName = type.Name + SERIALIZED_FILES_EXT;
+            var path = Path.Combine(GetPathForConfig().ToString(), fileName);
+            if (File.Exists(path))
+            {
+                return DeserializeFromFile(path);
+            }
+            else
+            {
+#if DEBUG
+                Logger.LogDebug($"File not found: {path}");
+#endif
+                return new();
+            }
+
+        }
+
+        /// <summary>
+        /// Save instance to config folder
+        /// </summary>
+        public static bool SaveConfigFile<T>(T instance)
+        {
+            var type = typeof(T);
+            var fileName = type.Name + SERIALIZED_FILES_EXT;
 
             try
             {
-                var contents = jsonSerializer.Serialize(instance!);
-                var fileDirectoryPath = Path.GetDirectoryName(filePath);
-                TouchDirectory(fileDirectoryPath);
-
-                if (backupOldData == true && File.Exists(filePath))
-                {
-                    File.Copy(filePath, $"{filePath}.{DateTime.Now.Ticks}.bak");
-                }
-
-                File.WriteAllText(filePath, contents);
+                var savePath = Path.Combine(GetPathForConfig().ToString(), fileName);
+                var serializedContent = JsonSerializer.Serialize(instance);
+                File.WriteAllText(savePath, serializedContent);
                 return true;
             }
             catch (Exception ex)
             {
-                //_logger.LogException(ex);
+                Logger.LogException(ex);
                 return false;
             }
         }
@@ -190,7 +161,7 @@ namespace Ant0nRocket.Lib.IO
         /// Every found filename goes to <paramref name="onFileFoundAction"/> so
         /// you could do whatever you want (make lists, do something with files, etc.)
         /// </summary>
-        public static void ScanDirectoryRecursively(string path, Action<string> onFileFoundAction)
+        public static void ScanDirectoryRecursively(string path, Action<string>? onFileFoundAction)
         {
             if (!Directory.Exists(path)) return;
             var files = Directory.GetFiles(path);
@@ -218,7 +189,7 @@ namespace Ant0nRocket.Lib.IO
                 }
                 catch (Exception ex)
                 {
-                    //_logger.LogException(ex);
+                    Logger.LogException(ex);
                     return false;
                 }
             }
@@ -232,7 +203,7 @@ namespace Ant0nRocket.Lib.IO
                 }
                 catch (Exception ex)
                 {
-                    //_logger.LogException(ex);
+                    Logger.LogException(ex);
                     return false;
                 }
             }

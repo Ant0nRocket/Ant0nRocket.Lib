@@ -103,8 +103,7 @@ namespace Ant0nRocket.Lib.IO
 
         /// <summary>
         /// Tries read content of a <paramref name="filePath"/> and deserialize
-        /// it into T.<br />
-        /// <b>N.B.!</b> If something goes wrong - a new instance of T will be returned
+        /// it into <typeparamref name="T"/>.
         /// </summary>
         public static T? TryReadFromFile<T>(string? filePath = default, bool createInstanceOnError = true) where T : class, new()
         {

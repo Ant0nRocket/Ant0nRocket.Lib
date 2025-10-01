@@ -10,23 +10,23 @@ namespace Ant0nRocket.Lib.Extensions
         /// <summary>
         /// 20.01.2021 12:45:00 -> 20.01.2021 00:00:00.000
         /// </summary>
-        public static DateTime StartOfTheDay(this DateTime date)
+        public static DateTime StartOfTheDay(this DateTime date, DateTimeKind dateTimeKind = DateTimeKind.Local)
         {
             var year = date.Year;
             var month = date.Month;
             var day = date.Day;
-            return new DateTime(year, month, day, 0, 0, 0, 0);
+            return new DateTime(year, month, day, 0, 0, 0, 0, dateTimeKind);
         }
 
         /// <summary>
         /// 20.01.2021 12:45:00 -> 20.01.2021 23:59:59.999
         /// </summary>
-        public static DateTime EndOfTheDay(this DateTime date)
+        public static DateTime EndOfTheDay(this DateTime date, DateTimeKind dateTimeKind = DateTimeKind.Local)
         {
             var year = date.Year;
             var month = date.Month;
             var day = date.Day;
-            return new DateTime(year, month, day, 23, 59, 59, 999);
+            return new DateTime(year, month, day, 23, 59, 59, 999, dateTimeKind);
         }
     }
 }

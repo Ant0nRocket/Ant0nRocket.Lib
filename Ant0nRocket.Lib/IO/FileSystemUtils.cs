@@ -1,6 +1,7 @@
 ﻿using Ant0nRocket.Lib.Attributes;
 using Ant0nRocket.Lib.Logging;
 using Ant0nRocket.Lib.Reflection;
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -21,22 +22,41 @@ namespace Ant0nRocket.Lib.IO
             Environment.SpecialFolder.LocalApplicationData;
 
         /// <summary>
-        /// Creates a directory <paramref name="path"/> if it doesn't exists.<br />
-        /// Make sure you didn't provide a full file path here :)
+        /// Creates a directory <paramref name="path"/>
         /// </summary>
-        public static bool TouchDirectory(string? path)
+        /// <param name="path">Path of a directory that need to be created</param>
+        /// <param name="onSuccess">Optional delegate thah will be called if success</param>
+        /// <param name="onError">Optional delegate that will be called if some error occured</param>
+        /// <returns></returns>
+        public static DirectoryInfo? TouchDirectory(string? path, Action<DirectoryInfo>? onSuccess = null, Action<Exception>? onError = null)
         {
-            if (string.IsNullOrWhiteSpace(path)) return false;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                var errorMessage = $"Null or whitespace '{nameof(path)}' provided";
+                onError?.Invoke(new ArgumentException(errorMessage, nameof(path)));
+                Logger.LogError(errorMessage);
+                return null;
+            }
+
+            if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            {
+                var errorMessage = $"Invalid path chars in '{nameof(path)}'";
+                onError?.Invoke(new ArgumentException(errorMessage, nameof(path)));
+                Logger.LogError(errorMessage);
+                return null;
+            }
 
             try
             {
-                _ = Directory.CreateDirectory(path);
-                return true;
+                var directoryInfo = Directory.CreateDirectory(path);
+                onSuccess?.Invoke(directoryInfo);
+                return directoryInfo;
             }
             catch (Exception ex)
             {
-                SignalBus.Send(ex);
-                return false;
+                onError?.Invoke(ex);
+                Logger.LogException(ex);
+                return null;
             }
         }
 

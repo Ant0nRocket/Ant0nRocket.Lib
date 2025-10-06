@@ -35,11 +35,24 @@ namespace Ant0nRocket.Lib.Extensions
         /// </summary>
         public static string ToHexString(this byte[] array, bool resultInLowerCase = true, bool removeDashes = true)
         {
-            if (array == null || array.Length == 0) return string.Empty;
-            var arrayAsString = BitConverter.ToString(array);
-            arrayAsString = resultInLowerCase ? arrayAsString.ToLower() : arrayAsString.ToUpper();
-            arrayAsString = removeDashes ? arrayAsString.Replace("-", string.Empty) : arrayAsString;
-            return arrayAsString;
+            if (array == null || array.Length == 0)
+                return string.Empty;
+
+            if (!removeDashes)
+            {
+                var result = BitConverter.ToString(array);
+                return resultInLowerCase ? result.ToLower() : result.ToUpper();
+            }
+
+            // More efficient for large arrays without dashes
+            return string.Create(array.Length * 2, array, (span, bytes) =>
+            {
+                var format = resultInLowerCase ? "x2" : "X2";
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    bytes[i].TryFormat(span.Slice(i * 2, 2), out _, format);
+                }
+            });
         }
     }
 }

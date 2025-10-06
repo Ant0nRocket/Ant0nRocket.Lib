@@ -1,10 +1,13 @@
 ﻿using Ant0nRocket.Lib.Attributes;
+using Ant0nRocket.Lib.Extensions;
+using Ant0nRocket.Lib.Helpers.ResultPattern;
 using Ant0nRocket.Lib.Logging;
 using Ant0nRocket.Lib.Reflection;
 
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Ant0nRocket.Lib.IO
 {
@@ -13,6 +16,49 @@ namespace Ant0nRocket.Lib.IO
     /// </summary>
     public static class FileSystemUtils
     {
+        /* There are two ways of storing app data:
+         * (1) Portable mode:
+           MyApp/
+           ├── MyApp.exe
+           ├── MyApp.dll
+           ├── Data/                    <--- All data near the exe-file
+           │   ├── Config/
+           │   │   └── appsettings.json
+           │   ├── Database/
+           │   │   └── app.db
+           │   ├── Logs/
+           │   │   └── app_20231201.log
+           │   ├── Cache/
+           │   │   └── temp_files/
+           │   └── Templates/
+           │       └── default.tpl
+           └── Plugins/
+               └── custom_plugin.dll
+
+           (2) Installed mode:
+            # Windows
+            C:\Users\{User}\AppData\Roaming\MyApp\
+            ├── Config/
+            ├── Database/
+            ├── Logs/
+            └── Cache/
+
+            C:\Program Files\MyApp\          
+            ├── MyApp.exe               <-- Executable file and libs (read-only!)
+            └── Plugins/
+
+
+        -------------------------------------------------------------------------------------------
+        -------------------------------------------------------------------------------------------
+        -------------------------------------------------------------------------------------------
+
+        Inside this library, if the application has the right to write temp files in the current 
+        base directory (AppContext.BaseDirectory - which is the place where executable file located) 
+        then the application will operate in portable mode, otherwise - in installed mode.
+         
+         
+         */
+
         /// <summary>
         /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
         /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
@@ -22,43 +68,54 @@ namespace Ant0nRocket.Lib.IO
             Environment.SpecialFolder.LocalApplicationData;
 
         /// <summary>
-        /// Creates a directory <paramref name="path"/>
+        /// <inheritdoc cref="TouchDirectory(string?)"/>
         /// </summary>
-        /// <param name="path">Path of a directory that need to be created</param>
-        /// <param name="onSuccess">Optional delegate thah will be called if success</param>
-        /// <param name="onError">Optional delegate that will be called if some error occured</param>
-        /// <returns></returns>
-        public static DirectoryInfo? TouchDirectory(string? path, Action<DirectoryInfo>? onSuccess = null, Action<Exception>? onError = null)
+        public static Task<Result<DirectoryInfo>> TouchDirectoryAsync(string? path) =>
+            Task.Run(() => TouchDirectory(path));
+
+        /// <summary>
+        /// Creates a directory <paramref name="path"/>. 
+        /// </summary>
+        /// <returns>
+        /// <see cref="Result{T}"/> where T - <see cref="DirectoryInfo"/>.
+        /// </returns>
+        public static Result<DirectoryInfo> TouchDirectory(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 var errorMessage = $"Null or whitespace '{nameof(path)}' provided";
-                onError?.Invoke(new ArgumentException(errorMessage, nameof(path)));
                 Logger.LogError(errorMessage);
-                return null;
+                return Result<DirectoryInfo>.Failure(errorMessage);
             }
 
             if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
                 var errorMessage = $"Invalid path chars in '{nameof(path)}'";
-                onError?.Invoke(new ArgumentException(errorMessage, nameof(path)));
                 Logger.LogError(errorMessage);
-                return null;
+                return Result<DirectoryInfo>.Failure(errorMessage);
             }
 
             try
             {
+                // Create directory. It could exists. Anyway - return DirectoryInfo
                 var directoryInfo = Directory.CreateDirectory(path);
-                onSuccess?.Invoke(directoryInfo);
-                return directoryInfo;
+                Logger.LogInformation($"Directory created (oe exists): {path}");
+                return Result<DirectoryInfo>.Success(directoryInfo);
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException or PathTooLongException or DirectoryNotFoundException)
+            {
+                var errorMessage = $"Access error or path too long: {ex.GetFullExceptionErrorMessage()}";
+                Logger.LogException(ex);
+                return Result<DirectoryInfo>.Failure(errorMessage);
             }
             catch (Exception ex)
             {
-                onError?.Invoke(ex);
+                var errorMessage = $"Unexpected error while directory creation: {ex.GetFullExceptionErrorMessage()}";
                 Logger.LogException(ex);
-                return null;
+                return Result<DirectoryInfo>.Failure(errorMessage);
             }
         }
+
 
 
 

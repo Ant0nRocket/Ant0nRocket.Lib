@@ -5,7 +5,7 @@ using System.Linq;
 namespace Ant0nRocket.Lib.Helpers
 {
     /// <summary>
-    /// Class that extands functionality of <see cref="Environment"/>.
+    /// Class that extends functionality of <see cref="Environment"/>.
     /// </summary>
     public static class Env
     {
@@ -43,17 +43,22 @@ namespace Ant0nRocket.Lib.Helpers
         #region Extended properties and functions
 
         /// <summary>
-        /// Automatically checks existance of the following conditions:<br />
-        /// 1) Is ".portable" file exists near main executable?<br />
-        /// 2) Is there a command line flag "--portable"?<br />
-        /// 3) Are the application started from folder that contains "/Debug/" in name?<br />
-        /// If any of those conditions are true - portable mode will be set to true.
+        /// <inheritdoc cref="IsPortableMode"/>
         /// </summary>
-        public static bool IsPortable => _isPortable.Value;
+        public static bool IsInstalledMode => !IsPortableMode;
+
+        /// <summary>
+        /// Automatically checks existence of the following conditions:<br />
+        /// 1) Does ".portable" file exist near main executable?<br />
+        /// 2) Is there a command line flag "--portable"?<br />
+        /// 3) Was the application started from folder that contains "/Debug/" in name?<br />
+        /// 4) If there is an ability to write file in current BaseDirectory<br />
+        /// If any of those conditions are true - portable mode is set to true.
+        /// </summary>
+        public static bool IsPortableMode => _isPortable.Value;
 
         private static readonly Lazy<bool> _isPortable = new(() =>
         {
-            // Сначала проверяем самые быстрые условия
             var args = Environment.GetCommandLineArgs();
             if (args.Any(arg => string.Equals(arg, "--portable", StringComparison.OrdinalIgnoreCase)))
                 return true;
@@ -64,9 +69,29 @@ namespace Ant0nRocket.Lib.Helpers
                 appBaseDirectoryPath.Contains("\\Debug\\", StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            // File.Exists - самая медленная операция, проверяем последней
             var portableFilePath = Path.Combine(appBaseDirectoryPath, ".portable");
-            return File.Exists(portableFilePath);
+            if (File.Exists(portableFilePath))
+                return true;
+
+            var testFilePath = Path.Combine(appBaseDirectoryPath, $"{Guid.NewGuid()}.tmp");
+            try
+            {
+                File.WriteAllText(testFilePath, testFilePath);
+                File.Delete(testFilePath);
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         });
 
         #endregion

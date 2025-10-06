@@ -13,7 +13,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// If <paramref name="source"/> is null then empty array hash will be computed.
         /// If <paramref name="hashAlgorithm"/> is null then SHA256 algo will be used.
         /// </summary>
-        public static byte[] ComputeHash(this byte[] source, HashAlgorithm? hashAlgorithm = default)
+        public static byte[] ComputeHash(this byte[]? source, HashAlgorithm? hashAlgorithm = default)
         {
             return (hashAlgorithm ?? SHA256.Create()).ComputeHash(source ?? []);
         }
@@ -21,7 +21,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// <summary>
         /// Compares all bytes in two byte array and returns equal state
         /// </summary>
-        public static bool StrictlyEquals(this byte[] arrayA, byte[] arrayB)
+        public static bool StrictlyEquals(this byte[]? arrayA, byte[]? arrayB)
         {
             if (arrayA == null || arrayB == null) return false;
             if (arrayA.Length != arrayB.Length) return false;
@@ -33,7 +33,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// Converts byte array into hex string.<br />
         /// If null or empty array passed - string.Empty will be returned.
         /// </summary>
-        public static string ToHexString(this byte[] array, bool resultInLowerCase = true, bool removeDashes = true)
+        public static string ToHexString(this byte[]? array, bool resultInLowerCase = true, bool removeDashes = true)
         {
             if (array == null || array.Length == 0)
                 return string.Empty;

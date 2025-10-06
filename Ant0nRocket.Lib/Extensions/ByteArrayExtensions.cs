@@ -25,9 +25,8 @@ namespace Ant0nRocket.Lib.Extensions
         {
             if (arrayA == null || arrayB == null) return false;
             if (arrayA.Length != arrayB.Length) return false;
-            for (int i = 0; i < arrayA.Length; i++)
-                if (arrayA[i] != arrayB[i]) return false;
-            return true;
+
+            return arrayA.AsSpan().SequenceEqual(arrayB);
         }
 
         /// <summary>

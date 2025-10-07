@@ -21,7 +21,7 @@ namespace Ant0nRocket.Lib.Configuration
             get
             {
                 if (_applicationName == default)
-                    _applicationName = Assembly.GetExecutingAssembly()?.GetName()?.Name ?? $"App_{Guid.NewGuid():N}";
+                    _applicationName = Assembly.GetEntryAssembly()?.GetName()?.Name ?? $"App_{Guid.NewGuid():N}";
                 return _applicationName;
             }
             set => _applicationName = string.IsNullOrWhiteSpace(value)

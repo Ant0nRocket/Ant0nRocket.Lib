@@ -1,5 +1,4 @@
 ﻿using Ant0nRocket.Lib.IO;
-using Ant0nRocket.Lib.Logging;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -12,32 +11,9 @@ namespace Ant0nRocket.Lib.Reflection
     /// </summary>
     public static class ReflectionUtils
     {
-        /// <summary>
-        /// Name of the application
-        /// </summary>
-        private static string? __appName = default;
+        
 
-        /// <summary>
-        /// Allows you to set app name manually.
-        /// If you never set the app name - reflections will get it from Assembly
-        /// </summary>
-        public static void SetAppName(string appName)
-        {
-            if (!string.IsNullOrEmpty(appName) && !string.IsNullOrWhiteSpace(appName))
-                __appName = appName;
-        }
 
-        /// <summary>
-        /// Returnes value specified by <see cref="SetAppName(string)"/>
-        /// of <see cref="Assembly.GetEntryAssembly"/> name.
-        /// </summary>
-        public static string GetAppName()
-        {
-            if (__appName != default)
-                return __appName;
-
-            return Assembly.GetEntryAssembly()?.GetName()?.Name!;
-        }
 
         /// <summary>
         /// Performes searching of the type <paramref name="typeFullName"/> in AppDomain and
@@ -126,6 +102,30 @@ namespace Ant0nRocket.Lib.Reflection
         #region OBSOLETE code
 
         //private static string? _appName = default;
+
+        /// <summary>
+        /// Allows you to set app name manually.
+        /// If you never set the app name - reflections will get it from Assembly
+        /// </summary>
+        [Obsolete]
+        public static void SetAppName(string appName)
+        {
+            if (!string.IsNullOrEmpty(appName) && !string.IsNullOrWhiteSpace(appName))
+                _applicationName = appName;
+        }
+
+        /// <summary>
+        /// Returnes value specified by <see cref="SetAppName(string)"/>
+        /// of <see cref="Assembly.GetEntryAssembly"/> name.
+        /// </summary>
+        [Obsolete]
+        public static string GetAppName()
+        {
+            if (_applicationName != default)
+                return _applicationName;
+
+            return Assembly.GetEntryAssembly()?.GetName()?.Name!;
+        }
 
         /// <summary>
         /// Leave it default if you want an AppName from assembly name.

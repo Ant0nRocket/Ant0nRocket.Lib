@@ -5,9 +5,9 @@ using System.Linq;
 namespace Ant0nRocket.Lib.Helpers
 {
     /// <summary>
-    /// Class that extends functionality of <see cref="Environment"/>.
+    /// Extended environment utilities that complement <see cref="Environment"/> class functionality.
     /// </summary>
-    public static class Env
+    public static class EnvironmentHelper
     {
         #region Standard Environment properties
 

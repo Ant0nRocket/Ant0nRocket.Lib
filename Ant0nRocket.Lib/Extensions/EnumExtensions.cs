@@ -13,6 +13,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// <summary>
         /// Returnes an IEnumerable[T] of all posible values of specified enum.
         /// </summary>
+        [Obsolete("You should use Enum.GetValues().Cast<T> instead")]
         public static IEnumerable<T> GetPosibleValues<T>(this T enumTypeValue) where T : struct
         {
             var enumType = enumTypeValue.GetType();

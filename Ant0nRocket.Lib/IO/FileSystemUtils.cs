@@ -1,7 +1,7 @@
 ﻿using Ant0nRocket.Lib.Attributes;
 using Ant0nRocket.Lib.Extensions;
-using Ant0nRocket.Lib.Helpers.ResultPattern;
 using Ant0nRocket.Lib.Logging;
+using Ant0nRocket.Lib.Patterns;
 using Ant0nRocket.Lib.Reflection;
 
 using System;

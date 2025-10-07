@@ -1,4 +1,5 @@
 ﻿using Ant0nRocket.Lib.Attributes;
+using Ant0nRocket.Lib.Configuration;
 using Ant0nRocket.Lib.Extensions;
 using Ant0nRocket.Lib.Logging;
 using Ant0nRocket.Lib.Patterns;
@@ -60,20 +61,6 @@ namespace Ant0nRocket.Lib.IO
          */
 
         /// <summary>
-        /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
-        /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
-        /// leads to <i>%APPDATA%/Local</i>.
-        /// </summary>
-        public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } =
-            Environment.SpecialFolder.LocalApplicationData;
-
-        /// <summary>
-        /// <inheritdoc cref="TouchDirectory(string?)"/>
-        /// </summary>
-        public static Task<Result<DirectoryInfo>> TouchDirectoryAsync(string? path) =>
-            Task.Run(() => TouchDirectory(path));
-
-        /// <summary>
         /// Creates a directory <paramref name="path"/>. 
         /// </summary>
         /// <returns>
@@ -116,6 +103,22 @@ namespace Ant0nRocket.Lib.IO
             }
         }
 
+        //-----------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// The value is used to calculate result of <see cref="GetDefaultAppDataFolderPath"/>.<br />
+        /// By default it is <see cref="Environment.SpecialFolder.LocalApplicationData"/> which
+        /// leads to <i>%APPDATA%/Local</i>.
+        /// </summary>
+        public static Environment.SpecialFolder DefaultSpecialFolder { get; set; } =
+            Environment.SpecialFolder.LocalApplicationData;
+
+
+
+        
+
 
 
 
@@ -124,9 +127,8 @@ namespace Ant0nRocket.Lib.IO
         /// </summary>
         private static string GetAppNameDependentSpecialFolderPath(Environment.SpecialFolder specialFolder)
         {
-            ReflectionUtils.AppName ??= Assembly.GetEntryAssembly().GetName().Name;
             var specialFolderPath = Environment.GetFolderPath(specialFolder);
-            return Path.Combine(specialFolderPath, ReflectionUtils.AppName);
+            return Path.Combine(specialFolderPath, ApplicationInfo.ApplicationName);
         }
 
         /// <summary>

@@ -15,23 +15,25 @@ namespace Ant0nRocket.Lib.Extensions
         /// <i>Error 1</i> -> <i>Error 2</i> -> <i>etc.</i>.
         /// You can change separator.
         /// </summary>
-        public static string GetFullExceptionErrorMessage(this Exception exception, string messagesSeparator = " -> ")
+        public static string GetFullExceptionErrorMessage(this Exception? exception, string messagesSeparator = " -> ", bool includeExceptionType = false)
         {
-            List<string> errorList = new();
-
-            void AppendErrorListRecursevely(Exception ex)
-            {
-                errorList.Add(ex.Message);
-                if (ex.InnerException != null)
-                    AppendErrorListRecursevely(ex.InnerException);
-            }
-
             if (exception == null)
                 return string.Empty;
 
-            AppendErrorListRecursevely(exception);
+            var messages = new List<string>();
+            var currentException = exception; // fast, just a link to exception
 
-            return string.Join(messagesSeparator, errorList);
+            while (currentException != null) // checked
+            {
+                var message = includeExceptionType
+                    ? $"[{currentException.GetType().Name}] {currentException.Message}"
+                    : currentException.Message;
+
+                messages.Add(message);
+                currentException = currentException.InnerException;
+            }
+
+            return string.Join(messagesSeparator, messages);
         }
     }
 }

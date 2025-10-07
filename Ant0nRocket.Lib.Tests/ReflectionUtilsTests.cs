@@ -15,7 +15,7 @@ namespace Ant0nRocket.Lib.Tests
         public void T001_FindTypeAccrossAppDomain()
         {
             var typeName = typeof(BasicClass).FullName;
-            var type = ReflectionUtils.FindTypeAccrossAppDomain(typeName!);
+            var type = ReflectionUtils.FindType(typeName!);
             Assert.IsNotNull(type);
         }
 

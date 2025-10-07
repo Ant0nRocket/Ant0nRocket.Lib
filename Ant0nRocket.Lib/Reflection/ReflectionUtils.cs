@@ -101,51 +101,6 @@ namespace Ant0nRocket.Lib.Reflection
 
         #region OBSOLETE code
 
-        //private static string? _appName = default;
-
-        /// <summary>
-        /// Allows you to set app name manually.
-        /// If you never set the app name - reflections will get it from Assembly
-        /// </summary>
-        [Obsolete]
-        public static void SetAppName(string appName)
-        {
-            if (!string.IsNullOrEmpty(appName) && !string.IsNullOrWhiteSpace(appName))
-                _applicationName = appName;
-        }
-
-        /// <summary>
-        /// Returnes value specified by <see cref="SetAppName(string)"/>
-        /// of <see cref="Assembly.GetEntryAssembly"/> name.
-        /// </summary>
-        [Obsolete]
-        public static string GetAppName()
-        {
-            if (_applicationName != default)
-                return _applicationName;
-
-            return Assembly.GetEntryAssembly()?.GetName()?.Name!;
-        }
-
-        /// <summary>
-        /// Leave it default if you want an AppName from assembly name.
-        /// </summary>
-        [Obsolete]
-        public static string AppName { get => GetAppName(); set => SetAppName(value); }
-
-        /// <summary>
-        /// Performes search of type full name specified as string 
-        /// <paramref name="typeName"/> and returnes <see cref="Type"/> if
-        /// found one in current domain. If not found - <b>null</b>.
-        /// </summary>
-        /// <param name="typeName"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public static Type? FindTypeAccrossAppDomain(string typeName)
-        {
-            return FindType(typeName);
-        }
-
         /// <summary>
         /// Performes search of all classes (and only classes!) that implements
         /// specified by <typeparamref name="T"/> interface.<br />
@@ -158,28 +113,6 @@ namespace Ant0nRocket.Lib.Reflection
                 throw new ArgumentException($"Type '{typeof(T).Name}' is not an interface");
 
             return GetTypesThatImplements<T>();
-
-
-
-            //var resultList = new List<Type>();
-            //var assemblies = AppDomain
-            //    .CurrentDomain
-            //    .GetAssemblies();
-
-            //foreach (var assembly in assemblies)
-            //{
-            //    var types = assembly
-            //        .GetTypes()
-            //        .Where(t => t.IsClass && !t.IsAbstract);
-
-            //    foreach (var type in types)
-            //    {
-            //        if (typeof(T).IsAssignableFrom(type))
-            //            resultList.Add(type);
-            //    }
-            //}
-
-            //return resultList;
         }
 
         #endregion

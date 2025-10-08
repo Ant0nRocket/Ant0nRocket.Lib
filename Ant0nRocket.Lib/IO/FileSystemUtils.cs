@@ -86,7 +86,6 @@ namespace Ant0nRocket.Lib.IO
             {
                 // Create directory. It could exists. Anyway - return DirectoryInfo
                 var directoryInfo = Directory.CreateDirectory(path);
-                Logger.LogInformation($"Directory created (oe exists): {path}");
                 return Result<DirectoryInfo>.Success(directoryInfo);
             }
             catch (Exception ex) when (ex is UnauthorizedAccessException or PathTooLongException or DirectoryNotFoundException)

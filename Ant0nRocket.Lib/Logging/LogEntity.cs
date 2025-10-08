@@ -40,7 +40,7 @@ namespace Ant0nRocket.Lib.Logging
         /// </summary>
         public int ThreadId { get; } = Environment.CurrentManagedThreadId; 
 
-#if DEBUG
+
 
         /// <summary>
         /// Name of the sender class
@@ -52,6 +52,5 @@ namespace Ant0nRocket.Lib.Logging
         /// </summary>
         public string? SenderMethodName { get; init; } = default;
 
-#endif
     }
 }

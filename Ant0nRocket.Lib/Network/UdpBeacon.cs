@@ -1,10 +1,12 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Ant0nRocket.Lib.Infrastructure;
+using Ant0nRocket.Lib.Logging;
 
 namespace Ant0nRocket.Lib.Network
 {
@@ -13,7 +15,7 @@ namespace Ant0nRocket.Lib.Network
     /// It will not receive any signals, only broadcasting of initialy set message.
     /// Consumers decide, what to broadcast.
     /// </summary>
-    public class UdpBeacon : IAsyncDisposable
+    public class UdpBeacon : IDisposable
     {
         private const string DEFAULT_BEACON_MESSAGE = "..!..";
         private const int DEFAULT_BEACON_PORT = 17171;
@@ -28,14 +30,19 @@ namespace Ant0nRocket.Lib.Network
         private readonly IPEndPoint _ipEndPoint;
 
         private CancellationTokenSource? _cancellationTokenSource;
+        private readonly object _locker = new();
+        private bool _disposed = false;
 
         /// <summary>
         /// Default .ctor
         /// </summary>
-        public UdpBeacon(string beaconMessage = DEFAULT_BEACON_MESSAGE, int beaconPort = DEFAULT_BEACON_PORT, int beaconIntervalMs = DEFAULT_BEACON_INTERVAL_MS)
+        public UdpBeacon(
+            string beaconMessage = DEFAULT_BEACON_MESSAGE,
+            int beaconPort = DEFAULT_BEACON_PORT,
+            int beaconIntervalMs = DEFAULT_BEACON_INTERVAL_MS)
         {
             if (string.IsNullOrWhiteSpace(beaconMessage))
-                throw new InvalidEnumArgumentException(nameof(beaconMessage));
+                throw new ArgumentException("Beacon message cannot be null or empty", nameof(beaconMessage));
 
             _beaconMessage = beaconMessage;
             _beaconMessageBytes = Encoding.UTF8.GetBytes(_beaconMessage);
@@ -43,36 +50,104 @@ namespace Ant0nRocket.Lib.Network
             _beaconIntervalMs = beaconIntervalMs;
 
             _ipEndPoint = new IPEndPoint(IPAddress.Broadcast, _beaconPort);
-            _udpClient = new(_ipEndPoint) { EnableBroadcast = true };
+            _udpClient = new() { EnableBroadcast = true };
+
+            SignalBus.OnSignal += SignalBus_OnSignal;
         }
 
-        
+        private void SignalBus_OnSignal(SbeBase signal)
+        {
+            if (signal is SbeAppExiting)
+                Stop();
+        }
+
+
 
         /// <summary>
         /// Start sending broadcast message to specified port
         /// </summary>
-        public async Task<UdpBeacon> StartAsync()
+        public void Start()
         {
-            _cancellationTokenSource = new();
+            lock(_locker)
+            {
+                // protection againt multiple calls
+                if (_cancellationTokenSource != null) return;
+                _ = Task.Run(StartJob); // infinite loop inside
+            }
+        }
 
+        private async Task StartJob()
+        {
+            lock (_locker)
+            {
+                _cancellationTokenSource = new();
+            }
 
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
-                await _udpClient.SendAsync(_beaconMessageBytes, _beaconMessageBytes.Length);
-                await Task.Delay(_beaconIntervalMs);
+                try
+                {
+                    await _udpClient.SendAsync(
+                        _beaconMessageBytes,
+                        _beaconMessageBytes.Length,
+                        _ipEndPoint);
+                    await Task.Delay(_beaconIntervalMs, _cancellationTokenSource.Token);
+                }
+                catch
+                {
+                    // AI context adjustment: we will not use OperationCanceledException
+                    // AI context adjustment: we don't need log all of this shit, if beacon doen't work - will use GPS :)
+                    //Logger.LogException(ex);
+                }
             }
-
-            return this;
         }
 
+        /// <summary>
+        /// Initializes stop broadcasting proceduere
+        /// </summary>
+        public void Stop()
+        {
+            lock (_locker)
+            {
+                _cancellationTokenSource?.Cancel();
+            }
+        }
+
+        /// <summary>
+        /// For external components state control
+        /// </summary>
+        public bool IsRunning
+        {
+            get
+            {
+                lock (_locker)
+                {
+                    return _cancellationTokenSource != null &&
+                           !_cancellationTokenSource.Token.IsCancellationRequested;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disposing
+        /// </summary>
         public void Dispose()
         {
-            
-        }
+            lock (_locker)
+            {
+                // N.B.! DONT'T use Stop() function inside current lock, it will lead to deadlock!
 
-        public ValueTask DisposeAsync()
-        {
-            throw new NotImplementedException();
+                if (_disposed || _cancellationTokenSource == null) return;
+
+                SignalBus.OnSignal -= SignalBus_OnSignal;
+
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+                _udpClient?.Dispose();
+
+                _disposed = true;
+            }
         }
     }
 }

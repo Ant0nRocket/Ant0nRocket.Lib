@@ -4,7 +4,7 @@
     /// Event class for <see cref="SignalBus"/> used when
     /// app is going to be closed.
     /// </summary>
-    public record SbeAppExiting
+    public record SbeAppExiting : SbeBase
     {
     }
 }

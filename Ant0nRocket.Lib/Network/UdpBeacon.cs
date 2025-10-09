@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Ant0nRocket.Lib.Infrastructure;
-using Ant0nRocket.Lib.Logging;
 
 namespace Ant0nRocket.Lib.Network
 {
@@ -135,7 +134,7 @@ namespace Ant0nRocket.Lib.Network
         {
             lock (_locker)
             {
-                // N.B.! DONT'T use Stop() function inside current lock, it will lead to deadlock!
+                // N.B.! DON'T use Stop() function inside current lock, it will lead to deadlock!
 
                 if (_disposed || _cancellationTokenSource == null) return;
 

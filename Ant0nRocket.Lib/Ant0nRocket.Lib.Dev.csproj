@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Description>Helpfull code: hasing, file-system utils, etc.</Description>
-    <Copyright>Ant0nRocket</Copyright>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-</Project>

@@ -4,10 +4,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Ant0nRocket.Lib.Infrastructure;
 
-namespace Ant0nRocket.Lib.Network
+namespace Ant0nRocket.Lib.Networking
 {
     /// <summary>
     /// Class that implement very simple network beacon.

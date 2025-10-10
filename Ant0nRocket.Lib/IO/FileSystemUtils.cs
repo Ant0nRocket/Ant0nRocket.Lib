@@ -7,8 +7,6 @@ using Ant0nRocket.Lib.Reflection;
 
 using System;
 using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Ant0nRocket.Lib.IO
 {
@@ -102,6 +100,66 @@ namespace Ant0nRocket.Lib.IO
             }
         }
 
+        /// <summary>
+        /// Function determines whether app has an access to write to current app base directory
+        /// (where exe-file located) or not.
+        /// </summary>
+        public static bool CanWriteToBaseDirectory()
+        {
+            var tempFilePath = Path.Combine(AppContext.BaseDirectory, Guid.NewGuid().ToString());
+            try
+            {
+                File.WriteAllText(tempFilePath, tempFilePath);
+                File.Delete(tempFilePath);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Will delete specified in <paramref name="path"/> file or directory.
+        /// If directory path provided - all files inside will be removed also.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool DeleteFileOrPathSimple(string path)
+        {
+            if (File.Exists(path))
+            {
+                try
+                {
+                    File.Delete(path);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            
+            if (Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.Delete(path, true);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+
+
+            return false;
+        }
+
+
+
         //-----------------------------------------------------------------------------------------
         //-----------------------------------------------------------------------------------------
         //-----------------------------------------------------------------------------------------
@@ -116,7 +174,7 @@ namespace Ant0nRocket.Lib.IO
 
 
 
-        
+
 
 
 

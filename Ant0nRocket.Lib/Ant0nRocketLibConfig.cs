@@ -48,24 +48,19 @@ namespace Ant0nRocket.Lib
 
         #region Json serializer
 
-        private static IJsonSerializer? _jsonSerializer;
 
         /// <summary>
         /// Returnes registred with <see cref="RegisterJsonSerializer(IJsonSerializer)"/> JSON serializer.
         /// </summary>
         /// <exception cref="ApplicationException">When no serializer were registred</exception>
-        public static IJsonSerializer GetJsonSerializer()
-        {
-            if (_jsonSerializer == null)
-                throw new ApplicationException($"Call '{nameof(RegisterJsonSerializer)}' first, current serializer is null");
-            return _jsonSerializer;
-        }
+        public static IJsonSerializer GetJsonSerializer() => 
+            JsonSerialization.GetJsonSerializer();
 
         /// <summary>
         /// Simply registers <paramref name="jsonSerializer"/> as a new library-wide JSON serializer.
         /// </summary>
-        public static void RegisterJsonSerializer(IJsonSerializer jsonSerializer) =>
-            _jsonSerializer = jsonSerializer;
+        public static void RegisterJsonSerializer(IJsonSerializer jsonSerializer) => 
+            JsonSerialization.RegisterJsonSerializer(jsonSerializer);
 
         #endregion
     }

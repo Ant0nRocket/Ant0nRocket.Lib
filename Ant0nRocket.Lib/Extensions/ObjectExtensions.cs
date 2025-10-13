@@ -3,6 +3,8 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
+using Ant0nRocket.Lib.Serialization;
+
 namespace Ant0nRocket.Lib.Extensions
 {
     /// <summary>
@@ -16,15 +18,17 @@ namespace Ant0nRocket.Lib.Extensions
         /// </summary>
         public static string AsJson(this object obj, bool pretty = false)
         {
-            var options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
-            };
+            //var options = new JsonSerializerOptions
+            //{
+            //    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            //    WriteIndented = true
+            //};
 
-            return JsonSerializer.Serialize(obj, options);
+            //return JsonSerializer.Serialize(obj, options);
 
-            return Ant0nRocketLibConfig.GetJsonSerializer().Serialize(obj, pretty);
+            //return Ant0nRocketLibConfig.GetJsonSerializer().Serialize(obj, pretty);
+
+            return JsonSerialization.GetJsonSerializer().Serialize(obj, pretty);
         }
 
         /// <summary>

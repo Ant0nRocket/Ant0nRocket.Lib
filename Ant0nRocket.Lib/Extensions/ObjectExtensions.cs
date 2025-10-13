@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace Ant0nRocket.Lib.Extensions
 {
@@ -14,6 +16,14 @@ namespace Ant0nRocket.Lib.Extensions
         /// </summary>
         public static string AsJson(this object obj, bool pretty = false)
         {
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+
+            return JsonSerializer.Serialize(obj, options);
+
             return Ant0nRocketLibConfig.GetJsonSerializer().Serialize(obj, pretty);
         }
 

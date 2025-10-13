@@ -1,4 +1,6 @@
 ﻿using Ant0nRocket.Lib.Extensions;
+using Ant0nRocket.Lib.Networking;
+using System.Diagnostics;
 
 namespace Ant0nRocket.Lib.Console
 {
@@ -6,17 +8,38 @@ namespace Ant0nRocket.Lib.Console
     {
         static void Main(string[] args)
         {
-            for (var i = 0; i < 1000; i++)
-            {
-                var guid = Guid.NewGuid();
+            StartPythonScriptAndWaitInSeparateTask("Networking.UdbBeacon.Listener.py");
 
-                var d1 = DateTime.UtcNow;
-                var seqGuid = guid.ToUnixEpochGuid(d1);
-                var d2 = seqGuid.GetDateTimeUtc();
+            using var udbBeacon = new UdpBeacon();
+            udbBeacon.Start();
 
-                System.Console.WriteLine($"{d1:O} | {seqGuid} | {d2:O}");
-            }
+            for (var i = 0; i < 10; i++) { Thread.Sleep(1000); }
+
+            udbBeacon.Stop();
+
             System.Console.ReadLine();
+        }
+
+        private static void StartPythonScriptAndWaitInSeparateTask(string scriptFileName)
+        {
+            _ = Task.Run(() => {
+                // Создаем объект для запуска процесса
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = Path.Combine("Scripts", scriptFileName),
+                    UseShellExecute = true,
+                };
+
+                // Запускаем процесс
+                using (Process process = Process.Start(startInfo))
+                {
+                    // Ждем завершения процесса
+                    process?.WaitForExit();
+
+                    // Получаем код выхода (опционально)
+                    int exitCode = process?.ExitCode ?? 0;
+                }
+            });
         }
     }
 }

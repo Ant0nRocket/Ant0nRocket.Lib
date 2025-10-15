@@ -94,6 +94,9 @@ namespace Ant0nRocket.Lib.Helpers
             }
         });
 
+
+        public static string GetBaseDirectory() => AppContext.BaseDirectory;
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Ant0nRocket.Lib.Extensions;
+using Ant0nRocket.Lib.Helpers;
 using Ant0nRocket.Lib.Networking;
 using System.Diagnostics;
 
@@ -8,16 +9,18 @@ namespace Ant0nRocket.Lib.Console
     {
         static void Main(string[] args)
         {
-            StartPythonScriptAndWaitInSeparateTask("Networking.UdbBeacon.Listener.py");
+            var l = EnvironmentHelper.MachineName;
 
-            using var udbBeacon = new UdpBeacon();
-            udbBeacon.Start();
+            //StartPythonScriptAndWaitInSeparateTask("Networking.UdbBeacon.Listener.py");
 
-            for (var i = 0; i < 10; i++) { Thread.Sleep(1000); }
+            //using var udbBeacon = new UdpBeacon();
+            //udbBeacon.Start();
 
-            udbBeacon.Stop();
+            //for (var i = 0; i < 10; i++) { Thread.Sleep(1000); }
 
-            System.Console.ReadLine();
+            //udbBeacon.Stop();
+
+            //System.Console.ReadLine();
         }
 
         private static void StartPythonScriptAndWaitInSeparateTask(string scriptFileName)

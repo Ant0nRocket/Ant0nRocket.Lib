@@ -94,7 +94,10 @@ namespace Ant0nRocket.Lib.Helpers
             }
         });
 
-
+        /// <summary>
+        /// Same as <see cref="AppContext.BaseDirectory"/>
+        /// </summary>
+        /// <returns></returns>
         public static string GetBaseDirectory() => AppContext.BaseDirectory;
 
         #endregion

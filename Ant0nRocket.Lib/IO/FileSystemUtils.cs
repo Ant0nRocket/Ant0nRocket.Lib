@@ -1,12 +1,12 @@
-﻿using Ant0nRocket.Lib.Attributes;
+﻿using System;
+using System.IO;
+
+using Ant0nRocket.Lib.Attributes;
 using Ant0nRocket.Lib.Configuration;
 using Ant0nRocket.Lib.Extensions;
-using Ant0nRocket.Lib.Logging;
+using Ant0nRocket.Lib.Helpers;
 using Ant0nRocket.Lib.Patterns;
 using Ant0nRocket.Lib.Reflection;
-
-using System;
-using System.IO;
 
 namespace Ant0nRocket.Lib.IO
 {
@@ -59,54 +59,18 @@ namespace Ant0nRocket.Lib.IO
          */
 
         /// <summary>
-        /// Creates a directory <paramref name="path"/>. 
-        /// </summary>
-        /// <returns>
-        /// <see cref="Result{T}"/> where T - <see cref="DirectoryInfo"/>.
-        /// </returns>
-        public static Result<DirectoryInfo> TouchDirectory(string? path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                var errorMessage = $"Null or whitespace '{nameof(path)}' provided";
-                Logger.LogError(errorMessage);
-                return Result<DirectoryInfo>.Failure(errorMessage);
-            }
-
-            if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
-            {
-                var errorMessage = $"Invalid path chars in '{nameof(path)}'";
-                Logger.LogError(errorMessage);
-                return Result<DirectoryInfo>.Failure(errorMessage);
-            }
-
-            try
-            {
-                // Create directory. It could exists. Anyway - return DirectoryInfo
-                var directoryInfo = Directory.CreateDirectory(path);
-                return Result<DirectoryInfo>.Success(directoryInfo);
-            }
-            catch (Exception ex) when (ex is UnauthorizedAccessException or PathTooLongException or DirectoryNotFoundException)
-            {
-                var errorMessage = $"Access error or path too long: {ex.GetFullExceptionErrorMessage()}";
-                Logger.LogException(ex);
-                return Result<DirectoryInfo>.Failure(errorMessage);
-            }
-            catch (Exception ex)
-            {
-                var errorMessage = $"Unexpected error while directory creation: {ex.GetFullExceptionErrorMessage()}";
-                Logger.LogException(ex);
-                return Result<DirectoryInfo>.Failure(errorMessage);
-            }
-        }
-
-        /// <summary>
         /// Function determines whether app has an access to write to current app base directory
         /// (where exe-file located) or not.
         /// </summary>
-        public static bool CanWriteToBaseDirectory()
+        public static bool CanWriteToBaseDirectory() => CanWriteToDirectory(AppContext.BaseDirectory);
+
+        /// <summary>
+        /// Check write access to <paramref name="directoryPath"/>.
+        /// </summary>
+        public static bool CanWriteToDirectory(string directoryPath)
         {
-            var tempFilePath = Path.Combine(AppContext.BaseDirectory, Guid.NewGuid().ToString());
+            var tempFilePath = Path.Combine(directoryPath, Path.GetRandomFileName());
+
             try
             {
                 File.WriteAllText(tempFilePath, tempFilePath);
@@ -120,43 +84,57 @@ namespace Ant0nRocket.Lib.IO
         }
 
         /// <summary>
-        /// Will delete specified in <paramref name="path"/> file or directory.
-        /// If directory path provided - all files inside will be removed also.
+        /// Returnes the path to application data folder depending on <see cref="EnvironmentHelper.IsPortableMode"/>
+        /// and respecting a flag <paramref name="isTransportableData"/> (if is heavy - then NO roaming!)
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static bool DeleteFileOrPathSimple(string path)
+        public static string GetAppDataDirectory(bool isTransportableData = false)
         {
-            if (File.Exists(path))
+            if (EnvironmentHelper.IsPortableMode)
             {
-                try
-                {
-                    File.Delete(path);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
+                return Path.Combine(AppContext.BaseDirectory, "Data");
             }
-            
-            if (Directory.Exists(path))
+            else
             {
-                try
-                {
-                    Directory.Delete(path, true);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
+                var specialFolder = isTransportableData ? 
+                    Environment.SpecialFolder.ApplicationData : 
+                    Environment.SpecialFolder.LocalApplicationData;
+                var specialFolderPath = Environment.GetFolderPath(specialFolder);
+                return Path.Combine(specialFolderPath, ApplicationInfo.ApplicationName);
             }
-
-
-
-            return false;
         }
+
+        /// <summary>
+        /// Shorthand for retreiving a config directory path.
+        /// </summary>
+        public static string GetAppDataDirectoryForConfig() => Path.Combine(GetAppDataDirectory(isTransportableData: true), "Config");
+
+        /// <summary>
+        /// Shorthand for retreiving a logs directory path.
+        /// </summary>
+        public static string GetAppDataDirectoryForLogs() => Path.Combine(GetAppDataDirectory(isTransportableData: false), "Logs");
+
+        /// <summary>
+        /// Creates a directory <paramref name="path"/>. 
+        /// </summary>
+        /// <returns>
+        /// <see cref="Result{T}"/> where T - <see cref="DirectoryInfo"/>.
+        /// </returns>
+        public static Result<DirectoryInfo> TouchDirectory(string path)
+        {
+            try
+            {
+                // Create directory. It could exists. Anyway - return DirectoryInfo
+                var directoryInfo = Directory.CreateDirectory(path);
+                return Result<DirectoryInfo>.Success(directoryInfo);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Error while directory creation: {ex.GetFullExceptionErrorMessage()}";
+                return Result<DirectoryInfo>.Failure(errorMessage);
+            }
+        }
+
+
 
 
 

@@ -21,6 +21,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\Dodb\" />
+  </ItemGroup>
   <Target Name="PostPackNugetDeploy" AfterTargets="Pack">
     <Exec Command="nuget.exe add &quot;$(ProjectDir)$(OutputPath)../$(PackageId).$(PackageVersion).nupkg&quot; -source ../../.nuget_local_repo" />
   </Target>

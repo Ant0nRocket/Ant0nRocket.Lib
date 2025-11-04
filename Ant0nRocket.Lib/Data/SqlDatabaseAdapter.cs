@@ -1,56 +1,114 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using Ant0nRocket.Lib.Extensions;
-using Ant0nRocket.Lib.Logging;
+
+using Ant0nRocket.Lib.Patterns;
 
 namespace Ant0nRocket.Lib.Data
 {
     /// <summary>
-    /// Basic implementation of <see cref="ISqlDatabaseAdapter"/>.
+    /// Simple ADO.Net connection wrapper.
     /// </summary>
-    public class SqlDatabaseAdapter<T> : ISqlDatabaseAdapter, IDisposable where T : IDbConnection
+    public class SqlDatabaseAdapter<T> where T : IDbConnection, new()
     {
-        private T? _connection;
+        // Will try to use it only if no connection string provided to constructor.
+        // But if no connection string provided and no getters registered - constructor
+        // will throw an InvalidOperationException
+        private static Func<string>? _FuncGetDefaultConnectionString;
 
-        /// <inheritdoc />
-        public string? ConnectionString { get; private set; }
+        private readonly string _connectionString;
 
-        /// <inheritdoc />
-        public bool Connect(string connectionString)
+        /// <summary>
+        /// If you don't need to warry about getting a connection string from
+        /// application settings - register getter function here and just create
+        /// <see cref="SqlDatabaseAdapter{T}"/> instance with no connection
+        /// strings provided.
+        /// </summary>
+        /// <param name="funcGetDefaultConnectionString"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void RegisterDefaultConnectionStringGetter(Func<string> funcGetDefaultConnectionString)
         {
-            if (_connection != null && _connection.State != ConnectionState.Closed)
-                throw new ApplicationException("you have fucked up with database connections!");
+            _FuncGetDefaultConnectionString = funcGetDefaultConnectionString ??
+                throw new ArgumentNullException(nameof(funcGetDefaultConnectionString));
+        }
 
-            ConnectionString = connectionString;
-            _connection = Activator.CreateInstance<T>();
+        /// <summary>
+        /// Creates an instance of <see cref="SqlDatabaseAdapter{T}"/>.
+        /// </summary>
+        /// <param name="connectionString">Connection string for specified database</param>
+        public SqlDatabaseAdapter(string? connectionString = default)
+        {
+            _connectionString = connectionString ??
+                _FuncGetDefaultConnectionString?.Invoke() ??
+                throw new InvalidOperationException("there is no way known for getting a connection string");
 
-            Logger.LogTrace(connectionString);
-            _connection.ConnectionString = connectionString;
+        }
+
+        /*
+        
+        IMPORTANT NOTES !!!
+
+        Every function that executes SQL will create it's own IDbConnection of type T,
+        use _connectionString, do some job and then dispose the connection!
+        Dont' try to mix reading and writing operations here!!!
+
+        If you need to something mixed call WithDbConnection function and do what you want inside
+        of a callback. Connection will be closed automatically!
+
+        */
+
+        private T GetDbConnection()
+        {
+            var dbConnection = Activator.CreateInstance<T>();
+            dbConnection.ConnectionString = _connectionString;
+            return dbConnection;
+        }
+
+        /// <summary>
+        /// Provides a IDbConnection for your own purpose, do whatever you want.
+        /// </summary>
+        public Result WithDbConnection(Action<T> callback)
+        {
+            using var dbConnection = GetDbConnection();
 
             try
             {
-                _connection.Open();
-                Logger.LogInformation($"Connection '{typeof(T).Name}' opened");
-                return true;
+                dbConnection.Open();
+                callback?.Invoke(dbConnection);
+                return Result.Success(); // connection will be closed automatically
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex);
-                return false;
+                return Result.Failure(ex);
             }
         }
 
-        /// <inheritdoc />
-        public void Close()
+        /// <summary>
+        /// For GET operations only!
+        /// Executes the <paramref name="sqlCommand"/> on DataReader and
+        /// invoke <paramref name="callback"/> when the reader is ready.
+        /// </summary>
+        public Result WithDataReader(string sqlCommand, Action<IDataReader> callback)
         {
-            if (_connection == null) return;
-            _connection.Close();
-            Logger.LogInformation($"Connection '{typeof(T).Name}' closed");
-        }
+            using var dbConnection = GetDbConnection();
+            using var dbCommand = dbConnection.CreateCommand();
+            dbCommand.CommandText = sqlCommand;
 
-        /// <inheritdoc />
-        public int ExecBatchNonQuerySql(IEnumerable<SqlParamMapper> sqlParamMappers)
+            try
+            {
+                dbConnection.Open();
+                using var dataReader = dbCommand.ExecuteReader();
+                callback?.Invoke(dataReader);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(ex);
+            }
+        }
+    }
+
+    /*
+     public int ExecBatchNonQuerySql(IEnumerable<SqlParamMapper> sqlParamMappers)
         {
             using var transaction = _connection?.BeginTransaction() ??
                 throw new NoNullAllowedException(nameof(_connection));
@@ -110,8 +168,5 @@ namespace Ant0nRocket.Lib.Data
                 Logger.LogException(ex);
             }
         }
-
-        /// <inheritdoc />
-        public void Dispose() => Close();
-    }
+     */
 }

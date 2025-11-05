@@ -1,12 +1,18 @@
-﻿using System;
+﻿using Ant0nRocket.Lib.Patterns;
+using System;
+using System.Collections.Generic;
 using System.Data;
-
-using Ant0nRocket.Lib.Patterns;
+using System.Reflection;
 
 namespace Ant0nRocket.Lib.Data
 {
     /// <summary>
     /// Simple ADO.Net connection wrapper.
+    /// This lib was designed to work with desktop apps, no async functions
+    /// here, because in UI development it goes to hell.
+    /// So DON'T use the class with web apps or apps with multiple connection strings!
+    /// This class is only for apps where DI, EF and all of this huge stuff
+    /// are overkill.
     /// </summary>
     public class SqlDatabaseAdapter<T> where T : IDbConnection, new()
     {
@@ -48,7 +54,7 @@ namespace Ant0nRocket.Lib.Data
         IMPORTANT NOTES !!!
 
         Every function that executes SQL will create it's own IDbConnection of type T,
-        use _connectionString, do some job and then dispose the connection!
+        uses _connectionString, do some job and then dispose the connection!
         Dont' try to mix reading and writing operations here!!!
 
         If you need to something mixed call WithDbConnection function and do what you want inside
@@ -58,7 +64,7 @@ namespace Ant0nRocket.Lib.Data
 
         private T GetDbConnection()
         {
-            var dbConnection = Activator.CreateInstance<T>();
+            var dbConnection = new T();
             dbConnection.ConnectionString = _connectionString;
             return dbConnection;
         }
@@ -96,7 +102,7 @@ namespace Ant0nRocket.Lib.Data
             try
             {
                 dbConnection.Open();
-                using var dataReader = dbCommand.ExecuteReader();
+                using var dataReader = dbCommand.ExecuteReader(CommandBehavior.CloseConnection);
                 callback?.Invoke(dataReader);
                 return Result.Success();
             }
@@ -105,68 +111,71 @@ namespace Ant0nRocket.Lib.Data
                 return Result.Failure(ex);
             }
         }
-    }
 
-    /*
-     public int ExecBatchNonQuerySql(IEnumerable<SqlParamMapper> sqlParamMappers)
+        /// <summary>
+        /// Executes multiple non-query SQL commands (INSERT, UPDATE, DELETE, etc.).
+        /// Pay attension! All commands will be executed inside a single transaction! Or please, explain me,
+        /// why you pack them all in one list? 😄
+        /// But how to execute one command, you ask? Easy, provide a list with single element.
+        /// If success - <see cref="Result{T}"/> of type int will be returned with int equals rows affected.
+        /// </summary>
+        public Result<int> ExecBatchNonQuery(List<(string commandText, object paramsObject)> batchPackage)
         {
-            using var transaction = _connection?.BeginTransaction() ??
-                throw new NoNullAllowedException(nameof(_connection));
+            using var dbConnection = GetDbConnection();
 
             var rowsAffected = 0;
 
-            foreach (var sqlParamMapper in sqlParamMappers)
-            {
-                using var command = sqlParamMapper.CreateDbCommand(_connection);
-                command.Transaction = transaction;
-                try
-                {
-                    rowsAffected += command.ExecuteNonQuery();
-
-#if DEBUG 
-                    Logger.LogDebug($"OK - \n{sqlParamMapper.AsJson(pretty: true)}");
-#endif
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogException(ex);
-                    transaction.Rollback();
-                    return 0;
-                }
-            }
-
             try
             {
+                dbConnection.Open();
+
+                using var transaction = dbConnection.BeginTransaction();
+                using var dbCommand = dbConnection.CreateCommand();
+                dbCommand.Transaction = transaction;
+
+                foreach (var (commandText, paramsObject) in batchPackage)
+                {
+                    dbCommand.Parameters.Clear(); // clean-up from previous use
+                    dbCommand.CommandText = commandText;
+
+                    if (paramsObject != null)
+                        ApplyParameters(dbCommand, paramsObject);
+
+                    rowsAffected += dbCommand.ExecuteNonQuery();
+                }
+
                 transaction.Commit();
-                return rowsAffected;
+                return Result<int>.Success(rowsAffected);
             }
             catch (Exception ex)
             {
-                Logger.LogException(ex);
-                return 0;
+                
+                return Result<int>.Failure(ex);
             }
         }
 
-        /// <inheritdoc />
-        public int ExecNonQuerySql(SqlParamMapper sqlParamMapper) =>
-            ExecBatchNonQuerySql(new List<SqlParamMapper> { sqlParamMapper });
+        private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = [];
+        private static readonly object _propertyCacheLocker = new();
 
-        /// <inheritdoc />
-        public void ExecQuerySql(SqlParamMapper sqlParamMapper, Action<IDataReader> onNextRowRead)
+        private static void ApplyParameters(IDbCommand command, object paramsObject)
         {
-            using var command = sqlParamMapper.CreateDbCommand(_connection!);
-
-            try
+            var paramsObjectType = paramsObject.GetType();
+            if (!_propertyCache.TryGetValue(paramsObjectType, out var paramsObjectProperties))
             {
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                    onNextRowRead(reader);
-
+                lock (_propertyCacheLocker) // I don't want to use ConcurrentDictionary here, to heavy
+                {
+                    paramsObjectProperties = paramsObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                    _propertyCache[paramsObjectType] = paramsObjectProperties;
+                }
             }
-            catch (Exception ex)
+
+            foreach (var property in paramsObjectProperties)
             {
-                Logger.LogException(ex);
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = $"@{property.Name}";
+                parameter.Value = property.GetValue(paramsObject) ?? DBNull.Value;
+                command.Parameters.Add(parameter);
             }
         }
-     */
+    }
 }

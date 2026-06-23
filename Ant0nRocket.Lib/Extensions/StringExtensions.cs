@@ -46,6 +46,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// </summary>
         public static string Left(this string value, int charsCount)
         {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
             if (value.Length <= charsCount)
                 return value;
             return value.Substring(0, charsCount);
@@ -56,6 +57,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// </summary>
         public static string Right(this string value, int charsCount)
         {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
             if (value.Length <= charsCount)
                 return value;
             return value.Substring(value.Length - charsCount);

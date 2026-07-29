@@ -1,5 +1,4 @@
 ﻿using Ant0nRocket.Lib.Logging;
-using Ant0nRocket.Lib.Tests.Serialization;
 
 namespace Ant0nRocket.Lib.Tests
 {
@@ -11,7 +10,6 @@ namespace Ant0nRocket.Lib.Tests
         {
             if (!_isInitilized)
             {
-                Ant0nRocketLibConfig.RegisterJsonSerializer(new JsonSerializer());
                 BasicLogWritter.LogFileNamePrefix = "Ant0nRocket.Lib.Tests_";
                 Logger.LogToBasicLogWritter = true;
                 Logger.UseCallerFilePath = false;

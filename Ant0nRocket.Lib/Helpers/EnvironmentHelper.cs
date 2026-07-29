@@ -55,7 +55,10 @@ namespace Ant0nRocket.Lib.Helpers
         /// 4) If there is an ability to write file in current BaseDirectory<br />
         /// If any of those conditions are true - portable mode is set to true.
         /// </summary>
-        public static bool IsPortableMode => _isPortable.Value;
+        public static bool IsPortableMode =>
+            ForcePortableMode == default ? _isPortable.Value : ForcePortableMode!.Value; // ForcePortableMode can't be null here
+
+        private static bool? ForcePortableMode { get; set; } = default;
 
         private static readonly Lazy<bool> _isPortable = new(() =>
         {

@@ -1,70 +1,91 @@
-﻿using System;
+﻿using Ant0nRocket.Lib.Logging;
+using Ant0nRocket.Lib.Patterns;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Ant0nRocket.Lib.Reflection
 {
     /// <summary>
-    /// Collection of reflection utils.
+    /// Collection of reflection utils with caching and thread-safety.<br />
+    /// <b>Assembly loading after app domain created is not supported!!!</b>
     /// </summary>
     public static class ReflectionUtils
     {
-        
-
-
+        private static readonly ConcurrentDictionary<string, Type> _typeCache = [];
 
         /// <summary>
-        /// Performes searching of the type <paramref name="typeFullName"/> in AppDomain and
-        /// returnes <see cref="Type"/> if found one.
+        /// Iterates over all loaded types in the AppDomain.
+        /// If some assembly throws exception on .GetTypes() then the assembly will be skipped.
         /// </summary>
-        public static Type? FindType(string typeFullName)
+        private static void ForEachTypeInDomain(Action<Type> action)
         {
-            if (__dictName2Type == default)
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var assembly in assemblies)
             {
-                __dictName2Type = new();
-
-                ForEachTypeInDomain(type =>
+                try
                 {
-                    if (type.FullName != null && !__dictName2Type.ContainsKey(type.FullName))
-                        __dictName2Type.Add(type.FullName, type);
-                });
+                    var types = assembly.GetTypes();
+                    foreach (var type in types)
+                        action?.Invoke(type);
+                }
+                catch (Exception ex)
+                {
+                    // We will not stop app execution, but sent to logger anyway
+                    Logger.LogException(ex);
+                }
             }
+        }
 
-            if (__dictName2Type.ContainsKey(typeFullName))
-                return __dictName2Type[typeFullName];
+        private static void BuildTypeCache()
+        {
+            if (!_typeCache.IsEmpty) return; // we already built it
+            ForEachTypeInDomain(t => {
+                if (t.FullName != null) // we don't need generics, arrays, pointers, etc.
+                    _ = _typeCache.TryAdd(t.FullName, t);
+            });
+        }
 
-            return default;
+        static ReflectionUtils()
+        {
+            BuildTypeCache(); // will build type cache once and only once when first ReflectionUtils use
         }
 
         /// <summary>
-        /// Cache for <see cref="FindType(string)"/> function
+        /// Finds a type by its full name in the current AppDomain.
         /// </summary>
-        private static Dictionary<string, Type>? __dictName2Type = default;
+        public static Result<Type> FindType(string typeFullName)
+        {
+            if (string.IsNullOrEmpty(typeFullName))
+                return Result<Type>.Failure("Type name cannot be null or empty.");
 
+            if (_typeCache.TryGetValue(typeFullName, out var type))
+                return Result<Type>.Success(type);
+
+            return Result<Type>.Failure($"Type '{typeFullName}' not found in app domain.");
+        }
 
         /// <summary>
-        /// Returnes a list of types that implements <typeparamref name="T"/>
+        /// Returns all types that implement or inherit from T.
         /// </summary>
         public static IEnumerable<Type> GetTypesThatImplements<T>()
         {
-            var result = new List<Type>();
-            var t = typeof(T);
+            var targetType = typeof(T);
 
-            ForEachTypeInDomain(type =>
-            {
-                if (t.Equals(type) == false && t.IsAssignableFrom(type))
-                    result.Add(type);
-            });
-
-            return result;
+            return _typeCache.Values
+                .Where(t => t != targetType && targetType.IsAssignableFrom(t))
+                .ToList(); // materialize to avoid double enumeration
         }
 
         /// <summary>
-        /// Retreives <typeparamref name="T"/> from <paramref name="fromType"/>,
-        /// or returnes null if nothing found or any exection thrown
+        /// Retrieves an attribute of type T from the given type.
         /// </summary>
         public static T? GetAttribute<T>(Type fromType) where T : Attribute
         {
+            if (fromType == null)
+                return default;
+
             try
             {
                 return (T?)Attribute.GetCustomAttribute(fromType, typeof(T));
@@ -74,44 +95,5 @@ namespace Ant0nRocket.Lib.Reflection
                 return default;
             }
         }
-
-        //-------------- PRIVATE FUNCTION -------------------------------------
-
-        /// <summary>
-        /// Helper function that iterates all exported types in domain
-        /// and allowes you do <paramref name="doSomeActionWith"/> found types
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ForEachTypeInDomain(Action<Type> doSomeActionWith)
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
-            {
-                var types = assembly.GetTypes();
-                foreach (var type in types)
-                {
-                    doSomeActionWith(type);
-                }
-            }
-
-        }
-
-        #region OBSOLETE code
-
-        /// <summary>
-        /// Performes search of all classes (and only classes!) that implements
-        /// specified by <typeparamref name="T"/> interface.<br />
-        /// If any class found it will be added to result list, or empty list returned.
-        /// </summary>
-        [Obsolete]
-        public static IEnumerable<Type> GetClassesThatImplementsInterface<T>() where T : class
-        {
-            if (!typeof(T).IsInterface)
-                throw new ArgumentException($"Type '{typeof(T).Name}' is not an interface");
-
-            return GetTypesThatImplements<T>();
-        }
-
-        #endregion
     }
 }

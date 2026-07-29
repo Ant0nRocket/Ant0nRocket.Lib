@@ -47,11 +47,11 @@ namespace Ant0nRocket.Lib.Patterns
         /// </summary>
         /// <param name="error"></param>
         /// <returns></returns>
-        public static Result Failure(string error) => new(false, error);
+        public static Result Failure(string? error = default) => new(false, error ?? "No error text provided");
 
         /// <summary>
         /// Same as <see cref="Failure(string)"/> but short-handed for exceptions:
-        /// <see cref="ExceptionExtensions.GetFullExceptionErrorMessage(Exception, string)"/> will be
+        /// <see cref="ExceptionExtensions.GetFullExceptionErrorMessage(Exception?, string, bool)"/> will be
         /// called for retrieve error message.
         /// </summary>
         public static Result Failure(Exception ex) => new(false, ex.GetFullExceptionErrorMessage());

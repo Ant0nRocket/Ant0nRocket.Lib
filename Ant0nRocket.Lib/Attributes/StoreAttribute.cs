@@ -19,27 +19,20 @@ namespace Ant0nRocket.Lib.Attributes
         /// yeat-another.dat
         /// </code>
         /// </summary>
-        public string FileName { get; private set; }
+        public string FileName { get; set; }
 
         /// <summary>
-        /// Relative or absolute directory path to <see cref="FileName"/>.
+        /// Relative (see <see cref="FileSystemUtils.GetDataDirectoryName(bool)"/>) directory path to <see cref="FileName"/>.
         /// </summary>
-        public string DirectoryName { get; private set; }
-
-        /// <summary>
-        /// If true - previous version of a file will be saved but
-        /// only when using <see cref="FileSystemUtils.TrySaveToFile{T}(T, string?, bool?)"/>.
-        /// </summary>
-        public bool BackupOldData { get; private set; } = false;
+        public string SubdirectoryName { get; set; }
 
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public StoreAttribute(string? fileName = default, string? subDirectory = default, bool backupOldData = false)
+        public StoreAttribute(string fileName, string subDirectory)
         {
             FileName = fileName ?? string.Empty;
-            DirectoryName = subDirectory ?? string.Empty;
-            BackupOldData = backupOldData;
+            SubdirectoryName = subDirectory ?? string.Empty;
         }
     }
 }

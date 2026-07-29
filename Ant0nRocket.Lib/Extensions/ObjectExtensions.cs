@@ -18,17 +18,7 @@ namespace Ant0nRocket.Lib.Extensions
         /// </summary>
         public static string AsJson(this object obj, bool pretty = false)
         {
-            //var options = new JsonSerializerOptions
-            //{
-            //    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            //    WriteIndented = true
-            //};
-
-            //return JsonSerializer.Serialize(obj, options);
-
-            //return Ant0nRocketLibConfig.GetJsonSerializer().Serialize(obj, pretty);
-
-            return JsonSerialization.GetJsonSerializer().Serialize(obj, pretty);
+            return JsonSerializer.Serialize(obj, pretty ? JsonSerializerOptionsProvider.HumanReadable : JsonSerializerOptionsProvider.Web);
         }
 
         /// <summary>

@@ -3,7 +3,7 @@ using Ant0nRocket.Lib.Tests.MockAttributes;
 
 namespace Ant0nRocket.Lib.Tests.MockClasses
 {
-    [Store("StoreClass")]
+    [Store("StoreClass.json", "Test")]
     [SomeCustom]
     public class StoreClass
     {

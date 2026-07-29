@@ -21,12 +21,12 @@ namespace Ant0nRocket.Lib.Patterns
         /// <summary>
         /// Instance of <typeparamref name="T"/> in case of <see cref="Result.IsSuccess"/>
         /// </summary>
-        public T? Value { get; }
+        public T Value { get; }
 
         /// <summary>
         /// Non-public to force fabric style, see fabric method below.
         /// </summary>
-        protected Result(T? value, bool isSuccess, string? error) : base(isSuccess, error)
+        protected Result(T value, bool isSuccess, string? error) : base(isSuccess, error)
         {
             Value = value;
         }

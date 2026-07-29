@@ -177,7 +177,7 @@ namespace Ant0nRocket.Lib.IO
         /// Returnes deserialized to <typeparamref name="T"/> content of a file.
         /// Settings for file path generation must be provided in <see cref="StoreAttribute"/>.
         /// </summary>
-        public static Result<T> ReadFileFromData<T>() where T : class, new()
+        public static Result<T> ReadFileFromDataOrNew<T>() where T : class, new()
         {
             var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ??
                 throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(StoreAttribute)}");
@@ -186,10 +186,23 @@ namespace Ant0nRocket.Lib.IO
 
             try
             {
-                var fileContents = File.ReadAllText(filePath);
-                var instance = JsonSerializer.Deserialize<T>(fileContents) ?? Activator.CreateInstance<T>();
+                T? instance;
 
-                return Result<T>.Success(instance);
+                // First - try deserialize from file
+                if (File.Exists(filePath))
+                {
+                    var fileContents = File.ReadAllText(filePath);
+                    instance = JsonSerializer.Deserialize<T>(fileContents);
+                    if (instance != default)
+                        return Result<T>.Success(instance);
+                }
+
+                // If deserialization from file failed - try create a new one
+                instance = Activator.CreateInstance<T>();
+                if (instance != default)
+                    return Result<T>.Success(instance);
+
+                throw new ApplicationException($"Unable to create instance of '{typeof(T)}'");
             }
             catch (Exception ex)
             {

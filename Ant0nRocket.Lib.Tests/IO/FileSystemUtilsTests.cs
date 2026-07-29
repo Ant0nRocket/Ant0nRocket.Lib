@@ -318,7 +318,7 @@ namespace Ant0nRocket.Lib.Tests.IO
             var data = new TestData { Id = 42, Name = "ReadTest" };
             FileSystemUtils.SaveFileToData(data);
 
-            var readResult = FileSystemUtils.ReadFileFromData<TestData>();
+            var readResult = FileSystemUtils.ReadFileFromDataOrNew<TestData>();
             Assert.That(readResult.IsSuccess, Is.True);
             Assert.That(readResult.Value.Id, Is.EqualTo(42));
             Assert.That(readResult.Value.Name, Is.EqualTo("ReadTest"));
@@ -333,8 +333,8 @@ namespace Ant0nRocket.Lib.Tests.IO
             if (File.Exists(expectedPath))
                 File.Delete(expectedPath);
 
-            var result = FileSystemUtils.ReadFileFromData<TestData>();
-            Assert.That(result.IsFailure, Is.True);
+            var result = FileSystemUtils.ReadFileFromDataOrNew<TestData>();
+            Assert.That(result.IsSuccess, Is.True);
         }
 
         [Test]

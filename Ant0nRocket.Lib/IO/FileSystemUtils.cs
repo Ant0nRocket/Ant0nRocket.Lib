@@ -177,38 +177,35 @@ namespace Ant0nRocket.Lib.IO
         /// Returnes deserialized to <typeparamref name="T"/> content of a file.
         /// Settings for file path generation must be provided in <see cref="StoreAttribute"/>.
         /// </summary>
-        public static Result<T> ReadFileFromDataOrNew<T>() where T : class, new()
+        public static T ReadFileFromDataOrNew<T>() where T : class, new()
         {
             var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ??
                 throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(StoreAttribute)}");
 
             var filePath = Path.Combine(GetDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
 
+            T? instance;
+
             try
             {
-                T? instance;
-
                 // First - try deserialize from file
                 if (File.Exists(filePath))
                 {
                     var fileContents = File.ReadAllText(filePath);
                     instance = JsonSerializer.Deserialize<T>(fileContents);
                     if (instance != default)
-                        return Result<T>.Success(instance);
+                        return instance;
                 }
-
-                // If deserialization from file failed - try create a new one
-                instance = Activator.CreateInstance<T>();
-                if (instance != default)
-                    return Result<T>.Success(instance);
-
-                throw new ApplicationException($"Unable to create instance of '{typeof(T)}'");
             }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex);
-                return Result<T>.Failure(ex);
-            }
+            catch { } // simply protect agains app fall
+
+            // If deserialization from file failed or file is not exists - create a new instance of T
+            instance = Activator.CreateInstance<T>();
+            if (instance != default)
+                return instance;
+
+            // ... and even if Activator can't create it - panic.
+            throw new ApplicationException($"Unable to create instance of '{typeof(T)}'");
         }
 
         /// <summary>

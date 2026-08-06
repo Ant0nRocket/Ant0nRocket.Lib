@@ -177,12 +177,14 @@ namespace Ant0nRocket.Lib.IO
         /// Returnes deserialized to <typeparamref name="T"/> content of a file.
         /// Settings for file path generation must be provided in <see cref="StoreAttribute"/>.
         /// </summary>
-        public static T ReadFileFromDataOrNew<T>() where T : class, new()
+        public static T ReadFileFromDataOrNew<T>(string? filePath = default) where T : class, new()
         {
-            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ??
-                throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(StoreAttribute)}");
-
-            var filePath = Path.Combine(GetDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
+            if (filePath == null)
+            {
+                var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ??
+                    throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(StoreAttribute)}");
+                filePath ??= Path.Combine(GetDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
+            }
 
             T? instance;
 

@@ -1,5 +1,6 @@
 ﻿using Ant0nRocket.Lib.Attributes;
 using Ant0nRocket.Lib.Configuration;
+using Ant0nRocket.Lib.Exceptions;
 using Ant0nRocket.Lib.Helpers;
 using Ant0nRocket.Lib.Logging;
 using Ant0nRocket.Lib.Patterns;
@@ -174,51 +175,61 @@ namespace Ant0nRocket.Lib.IO
         }
 
         /// <summary>
-        /// Returnes deserialized to <typeparamref name="T"/> content of a file.
-        /// Settings for file path generation must be provided in <see cref="StoreAttribute"/>.
+        /// Reads a JSON file and attempts to deserialize it into <typeparamref name="T"/>.
         /// </summary>
-        public static T ReadFileFromDataOrNew<T>() where T : class, new()
+        /// <param name="filePath">Path to the JSON file.</param>
+        /// <returns>
+        /// A <see cref="Result{T}"/> containing the deserialized instance on success,
+        /// or an error if the file could not be read or deserialized.
+        /// </returns>
+        public static Result<T> LoadFromJsonFile<T>(string filePath) where T : class
         {
-            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ??
-                throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(StoreAttribute)}");
-
-            var filePath = Path.Combine(GetDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
-
-            T? instance;
-
             try
             {
-                // First - try deserialize from file
-                if (File.Exists(filePath))
-                {
-                    var fileContents = File.ReadAllText(filePath);
-                    instance = JsonSerializer.Deserialize<T>(fileContents);
-                    if (instance != default)
-                        return instance;
-                }
+                using var fileStream = File.OpenRead(filePath);
+                var instance = JsonSerializer.Deserialize<T>(fileStream);
+                if (instance != null)
+                    return Result<T>.Success(instance);
+
+                return Result<T>.Failure($"Unable to deserialize content of '{filePath}' to {typeof(T).Name}");
             }
-            catch { } // simply protect agains app fall
-
-            // If deserialization from file failed or file is not exists - create a new instance of T
-            instance = Activator.CreateInstance<T>();
-            if (instance != default)
-                return instance;
-
-            // ... and even if Activator can't create it - panic.
-            throw new ApplicationException($"Unable to create instance of '{typeof(T)}'");
+            catch (Exception ex) // checked - Exception is ok here
+            {
+                return Result<T>.Failure(ex);
+            }
         }
 
         /// <summary>
-        /// Writes serialized <paramref name="instance"/> to file which path depends on <see cref="StoreAttribute"/>.
+        /// Wrapper around <see cref="LoadFromJsonFile{T}(string)"/> with two differences:<br />
+        /// 1) If deserialization failed then new instance will be returned;<br />
+        /// 2) Only [Store] decorated classes could be used (<see cref="AppDataLocationAttribute" />)
         /// </summary>
-        public static Result SaveFileToData<T>(T instance,
+        public static T LoadOrCreateFromAppData<T>() where T : class, new()
+        {
+            var storeAttr = ReflectionUtils.GetAttribute<AppDataLocationAttribute>(typeof(T)) ??
+                throw new MissingAppDataLocationAttributeException($"Type '{typeof(T).Name}' must be decorated with {nameof(AppDataLocationAttribute)}");
+
+            var filePath = Path.Combine(GetDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
+
+            var result = LoadFromJsonFile<T>(filePath);
+            if (result.IsSuccess)
+                return result.Value;
+
+            Logger.LogError(result.Error!);
+            return new();
+        }
+
+        /// <summary>
+        /// Writes serialized <paramref name="instance"/> to file which path depends on <see cref="AppDataLocationAttribute"/>.
+        /// </summary>
+        public static Result SaveToAppData<T>(T instance,
             string? destFilePath = null,
             bool backupOldData = true,
             string backupOldDataSubfolder = "Backup",
             JsonSerializerOptions? jsonSerializerOptions = default)
         {
-            var storeAttr = ReflectionUtils.GetAttribute<StoreAttribute>(typeof(T)) ??
-                throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(StoreAttribute)}");
+            var storeAttr = ReflectionUtils.GetAttribute<AppDataLocationAttribute>(typeof(T)) ??
+                throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(AppDataLocationAttribute)}");
 
             var dataDirectory = GetDataDirectoryName();
 

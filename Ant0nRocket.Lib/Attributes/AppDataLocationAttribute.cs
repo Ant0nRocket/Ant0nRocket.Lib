@@ -5,11 +5,11 @@ namespace Ant0nRocket.Lib.Attributes
 {
     /// <summary>
     /// Attribute describes where to store serialized version of a class.
-    /// Only <see cref="FileSystemUtils.ReadFileFromDataOrNew{T}"/> and
-    /// <see cref="FileSystemUtils.SaveFileToData{T}(T, string?, bool, string, JsonSerializerOptions?)"/> use it.
+    /// Only <see cref="FileSystemUtils.LoadOrCreateFromAppData{T}"/> and
+    /// <see cref="FileSystemUtils.SaveToAppData{T}(T, string?, bool, string, System.Text.Json.JsonSerializerOptions?)"/> use it.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class StoreAttribute : Attribute
+    public class AppDataLocationAttribute : Attribute
     {
         /// <summary>
         /// File name without path part.
@@ -29,7 +29,7 @@ namespace Ant0nRocket.Lib.Attributes
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public StoreAttribute(string fileName, string subDirectory, string fileNameExt = ".json")
+        public AppDataLocationAttribute(string fileName, string subDirectory, string fileNameExt = ".json")
         {
             FileName = fileName ?? string.Empty;
             SubdirectoryName = subDirectory ?? string.Empty;

@@ -18,7 +18,7 @@ namespace Ant0nRocket.Lib.Tests.IO
         private string _dataDirectory;
 
         // Тестовый класс с атрибутом Store
-        [Store("test.json", "TestDir")]
+        [AppDataLocation("test.json", "TestDir")]
         private class TestData
         {
             public int Id { get; set; }
@@ -293,7 +293,7 @@ namespace Ant0nRocket.Lib.Tests.IO
             var data = new TestData { Id = 1, Name = "Test" };
 
             // Первое сохранение
-            var result1 = FileSystemUtils.SaveFileToData(data);
+            var result1 = FileSystemUtils.SaveToAppData(data);
             Assert.That(result1.IsSuccess, Is.True);
 
             // Проверяем, что файл создан
@@ -301,11 +301,11 @@ namespace Ant0nRocket.Lib.Tests.IO
             Assert.That(File.Exists(expectedPath), Is.True);
 
             // Второе сохранение с бэкапом
-            var result2 = FileSystemUtils.SaveFileToData(data);
+            var result2 = FileSystemUtils.SaveToAppData(data);
             Assert.That(result2.IsSuccess, Is.True);
 
             // Проверяем наличие бэкапа
-            var backupDir = Path.Combine(Path.GetDirectoryName(expectedPath), "Backup");
+            var backupDir = Path.Combine(Path.GetDirectoryName(expectedPath)!, "Backup");
             Assert.That(Directory.Exists(backupDir), Is.True);
             var backupFiles = Directory.GetFiles(backupDir, "test_*.json");
             Assert.That(backupFiles.Length, Is.EqualTo(1));
@@ -316,12 +316,12 @@ namespace Ant0nRocket.Lib.Tests.IO
         {
             SetPortableMode(true);
             var data = new TestData { Id = 42, Name = "ReadTest" };
-            FileSystemUtils.SaveFileToData(data);
+            FileSystemUtils.SaveToAppData(data);
 
-            var readResult = FileSystemUtils.ReadFileFromDataOrNew<TestData>();
-            Assert.That(readResult.IsSuccess, Is.True);
-            Assert.That(readResult.Value.Id, Is.EqualTo(42));
-            Assert.That(readResult.Value.Name, Is.EqualTo("ReadTest"));
+            var readResult = FileSystemUtils.LoadOrCreateFromAppData<TestData>();
+            Assert.That(readResult, Is.Not.Null);
+            Assert.That(readResult.Id, Is.EqualTo(42));
+            Assert.That(readResult.Name, Is.EqualTo("ReadTest"));
         }
 
         [Test]
@@ -333,8 +333,8 @@ namespace Ant0nRocket.Lib.Tests.IO
             if (File.Exists(expectedPath))
                 File.Delete(expectedPath);
 
-            var result = FileSystemUtils.ReadFileFromDataOrNew<TestData>();
-            Assert.That(result.IsSuccess, Is.True);
+            var result = FileSystemUtils.LoadOrCreateFromAppData<TestData>();
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -343,13 +343,13 @@ namespace Ant0nRocket.Lib.Tests.IO
             SetPortableMode(true);
             var data = new TestData { Id = 3, Name = "Custom" };
             var customPath = Path.Combine(_testRoot, "custom.json");
-            var result = FileSystemUtils.SaveFileToData(data, destFilePath: customPath);
+            var result = FileSystemUtils.SaveToAppData(data, destFilePath: customPath);
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(File.Exists(customPath), Is.True);
 
             var json = File.ReadAllText(customPath);
             var deserialized = JsonSerializer.Deserialize<TestData>(json);
-            Assert.That(deserialized.Id, Is.EqualTo(3));
+            Assert.That(deserialized?.Id, Is.EqualTo(3));
         }
 
         [Test]
@@ -357,8 +357,8 @@ namespace Ant0nRocket.Lib.Tests.IO
         {
             SetPortableMode(true);
             var data = new TestData { Id = 1, Name = "NoBackup" };
-            FileSystemUtils.SaveFileToData(data); // первый раз
-            var result = FileSystemUtils.SaveFileToData(data, backupOldData: false);
+            FileSystemUtils.SaveToAppData(data); // первый раз
+            var result = FileSystemUtils.SaveToAppData(data, backupOldData: false);
             Assert.That(result.IsSuccess, Is.True);
 
             var backupDir = Path.Combine(FileSystemUtils.GetDataDirectoryName(), "TestDir", "Backup");

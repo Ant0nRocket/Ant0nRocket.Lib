@@ -58,7 +58,7 @@ namespace Ant0nRocket.Lib.Helpers
         public static bool IsPortableMode =>
             ForcePortableMode == default ? _isPortable.Value : ForcePortableMode!.Value; // ForcePortableMode can't be null here
 
-        private static bool? ForcePortableMode { get; set; } = default;
+        public static bool? ForcePortableMode { get; set; } = default;
 
         private static readonly Lazy<bool> _isPortable = new(() =>
         {

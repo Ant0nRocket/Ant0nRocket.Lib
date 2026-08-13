@@ -121,7 +121,7 @@ namespace Ant0nRocket.Lib.IO
         /// trash anywhere in the system!).
         /// Same for normal mode: heavy data - in local %app_data% (to prevent roaming), else - in roaming %app_data%
         /// </summary>
-        public static string GetDataDirectoryName(bool isTransportableData = false)
+        public static string GetAppDataDirectoryName(bool isTransportableData = false)
         {
             if (EnvironmentHelper.IsPortableMode)
             {
@@ -209,7 +209,7 @@ namespace Ant0nRocket.Lib.IO
             var storeAttr = ReflectionUtils.GetAttribute<AppDataLocationAttribute>(typeof(T)) ??
                 throw new MissingAppDataLocationAttributeException($"Type '{typeof(T).Name}' must be decorated with {nameof(AppDataLocationAttribute)}");
 
-            var filePath = Path.Combine(GetDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
+            var filePath = Path.Combine(GetAppDataDirectoryName(), storeAttr.SubdirectoryName, storeAttr.FileName);
 
             var result = LoadFromJsonFile<T>(filePath);
             if (result.IsSuccess)
@@ -231,7 +231,7 @@ namespace Ant0nRocket.Lib.IO
             var storeAttr = ReflectionUtils.GetAttribute<AppDataLocationAttribute>(typeof(T)) ??
                 throw new ApplicationException($"Type '{typeof(T)}' must be decorated with {nameof(AppDataLocationAttribute)}");
 
-            var dataDirectory = GetDataDirectoryName();
+            var dataDirectory = GetAppDataDirectoryName();
 
             destFilePath ??= Path.Combine(dataDirectory, storeAttr.SubdirectoryName, storeAttr.FileName);
             var destFileDirectory = Path.GetDirectoryName(destFilePath);

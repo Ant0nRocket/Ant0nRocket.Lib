@@ -22,7 +22,7 @@ namespace Ant0nRocket.Lib.Attributes
         public string FileName { get; set; }
 
         /// <summary>
-        /// Relative (see <see cref="FileSystemUtils.GetDataDirectoryName(bool)"/>) directory path to <see cref="FileName"/>.
+        /// Relative (see <see cref="FileSystemUtils.GetAppDataDirectoryName(bool)"/>) directory path to <see cref="FileName"/>.
         /// </summary>
         public string SubdirectoryName { get; set; }
 
